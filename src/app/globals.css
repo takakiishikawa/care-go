@@ -28,35 +28,18 @@
   --color-neutral-800: #2E2B28;
   --color-neutral-900: #1A1815;
 
-  /* Semantic */
-  --color-success: #2D8A5F;
-  --color-warning: #C07818;
-  --color-danger: #C0392B;
-  --color-info: #2980B9;
-
-  /* Fonts */
-  --font-display: 'DM Serif Display', Georgia, serif;
+  /* Font */
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Spacing */
-  --spacing-1: 4px;
-  --spacing-2: 8px;
-  --spacing-3: 12px;
-  --spacing-4: 16px;
-  --spacing-5: 20px;
-  --spacing-6: 24px;
-  --spacing-8: 32px;
-  --spacing-10: 40px;
-  --spacing-12: 48px;
-  --spacing-16: 64px;
-
-  /* Border radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
+  /* Typography scale */
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  32px;
+  --text-3xl:  48px;
 
   /* Shadows */
   --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
@@ -68,14 +51,13 @@
   --border-color-hover: rgba(46, 43, 40, 0.25);
 }
 
+* { box-sizing: border-box; }
+
 body {
   background: #F8F6F2;
   color: #1A1815;
   font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.font-display {
-  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }

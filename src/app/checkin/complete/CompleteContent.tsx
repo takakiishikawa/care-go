@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -10,8 +10,11 @@ interface CompleteContentProps {
 
 export default function CompleteContent({ meditationUrl }: CompleteContentProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [meditationLogged, setMeditationLogged] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
+  const [btnHovered, setBtnHovered] = useState(false);
+  const [btnPressed, setBtnPressed] = useState(false);
 
   const checkinId = searchParams.get('id');
   const timing = searchParams.get('timing') || 'morning';
@@ -33,87 +36,61 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
       // エラーは無視して遷移
     } finally {
       setIsLogging(false);
+      // YouTube を別タブで開き、このタブはダッシュボードへ
       window.open(meditationUrl, '_blank', 'noopener,noreferrer');
+      router.push('/dashboard');
     }
   };
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F6F2', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
       <div style={{
-        background: '#FFFFFF',
-        border: '0.5px solid var(--border-color)',
-        borderRadius: '20px',
-        padding: '48px 40px',
-        maxWidth: '520px',
-        width: '100%',
+        background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+        borderRadius: '20px', padding: '48px 40px',
+        maxWidth: '520px', width: '100%',
         boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       }}>
         {/* 完了ヘッダー */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
-            width: '56px',
-            height: '56px',
-            background: '#E8F5EF',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 16px',
-            fontSize: '24px',
+            width: '56px', height: '56px', background: '#E8F5EF', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px', fontSize: '24px',
           }}>
             ✓
           </div>
-          <h1 style={{
-            fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: '24px',
-            color: '#1A1815',
-            marginBottom: '8px',
-          }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#1A1815', marginBottom: '8px' }}>
             記録しました
           </h1>
-          <p style={{ fontSize: '13px', color: '#A09B92' }}>
+          <p style={{ fontSize: '14px', color: '#A09B92' }}>
             {timing === 'morning' ? '朝のチェックイン完了' : '夜のチェックイン完了'}
           </p>
         </div>
 
-        {/* スコア表示 */}
+        {/* スコア */}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '11px', color: '#A09B92', marginBottom: '8px' }}>コンディションスコア</div>
-          <div style={{
-            fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: '56px',
-            color: '#2D8A5F',
-            lineHeight: 1,
-          }}>
+          <div style={{ fontSize: '12px', color: '#A09B92', marginBottom: '8px' }}>コンディションスコア</div>
+          <div style={{ fontSize: '48px', fontWeight: 600, color: '#2D8A5F', lineHeight: 1 }}>
             {score}
           </div>
-          <div style={{ fontSize: '13px', color: '#A09B92', marginTop: '4px' }}>/ 100</div>
+          <div style={{ fontSize: '14px', color: '#A09B92', marginTop: '4px' }}>/ 100</div>
         </div>
 
         {/* AIコメント */}
         {comment && (
           <div style={{
-            background: '#E8F5EF',
-            borderLeft: '3px solid #4DAF80',
-            borderRadius: '0 10px 10px 0',
-            padding: '14px 16px',
-            marginBottom: '28px',
+            background: '#E8F5EF', borderLeft: '3px solid #4DAF80',
+            borderRadius: '0 10px 10px 0', padding: '14px 16px', marginBottom: '28px',
           }}>
-            <div style={{ fontSize: '11px', color: '#2D8A5F', fontWeight: 500, marginBottom: '6px' }}>AIコメント</div>
-            <p style={{ fontSize: '14px', color: '#1A5C3E', lineHeight: 1.7, margin: 0 }}>
-              {comment}
-            </p>
+            <div style={{ fontSize: '12px', color: '#2D8A5F', fontWeight: 500, marginBottom: '6px' }}>AIコメント</div>
+            <p style={{ fontSize: '14px', color: '#1A5C3E', lineHeight: 1.7, margin: 0 }}>{comment}</p>
           </div>
         )}
 
         {/* 瞑想誘導 */}
         <div style={{
-          background: '#FDF3E3',
-          border: '0.5px solid #FAE0B0',
-          borderRadius: '14px',
-          padding: '20px',
-          marginBottom: '24px',
-          textAlign: 'center',
+          background: '#FDF3E3', border: '0.5px solid #FAE0B0',
+          borderRadius: '14px', padding: '20px', marginBottom: '24px', textAlign: 'center',
         }}>
           <p style={{ fontSize: '14px', color: '#7A4C0A', marginBottom: '16px', lineHeight: 1.6 }}>
             記録できました。瞑想に進みますか？
@@ -121,39 +98,32 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
           <button
             onClick={handleMeditation}
             disabled={isLogging}
+            onMouseEnter={() => setBtnHovered(true)}
+            onMouseLeave={() => { setBtnHovered(false); setBtnPressed(false); }}
+            onMouseDown={() => setBtnPressed(true)}
+            onMouseUp={() => setBtnPressed(false)}
             style={{
-              background: '#C07818',
-              color: 'white',
-              border: 'none',
-              borderRadius: '10px',
-              padding: '11px 24px',
-              fontSize: '14px',
-              fontWeight: 500,
+              background: btnHovered ? '#7A4C0A' : '#C07818',
+              color: 'white', border: 'none', borderRadius: '10px',
+              padding: '11px 24px', fontSize: '14px', fontWeight: 500,
               cursor: isLogging ? 'not-allowed' : 'pointer',
               opacity: isLogging ? 0.7 : 1,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              transform: btnPressed ? 'scale(0.97)' : 'scale(1)',
+              transition: 'all 0.15s ease',
             }}
           >
             {meditationLogged ? '記録済み ✓' : '瞑想に進む →'}
           </button>
-          <p style={{ fontSize: '11px', color: '#A09B92', marginTop: '10px' }}>
-            外部サービスが別タブで開きます
+          <p style={{ fontSize: '12px', color: '#A09B92', marginTop: '10px' }}>
+            別タブでYouTubeが開き、このページはダッシュボードに戻ります
           </p>
         </div>
 
-        <Link
-          href="/dashboard"
-          style={{
-            display: 'block',
-            textAlign: 'center',
-            color: '#2D8A5F',
-            fontSize: '14px',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
-        >
+        <Link href="/dashboard" style={{
+          display: 'block', textAlign: 'center',
+          color: '#2D8A5F', fontSize: '14px', textDecoration: 'none', fontWeight: 500,
+        }}>
           ダッシュボードへ
         </Link>
       </div>

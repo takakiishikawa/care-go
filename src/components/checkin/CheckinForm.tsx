@@ -16,6 +16,8 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   const [freeText, setFreeText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [btnHovered, setBtnHovered] = useState(false);
+  const [btnPressed, setBtnPressed] = useState(false);
 
   const greeting = timing === 'morning'
     ? 'おはようございます。今朝の状態は？'
@@ -32,22 +34,11 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
       const res = await fetch('/api/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          timing,
-          mood_score: moodScore,
-          emotion_tags: emotionTags,
-          free_text: freeText || null,
-        }),
+        body: JSON.stringify({ timing, mood_score: moodScore, emotion_tags: emotionTags, free_text: freeText || null }),
       });
-
       const data = await res.json();
+      if (!res.ok) { setError(data.error || '送信に失敗しました'); return; }
 
-      if (!res.ok) {
-        setError(data.error || '送信に失敗しました');
-        return;
-      }
-
-      // チェックイン完了ページへ遷移（データをクエリパラメータで渡す）
       const params = new URLSearchParams({
         id: data.checkin.id,
         timing,
@@ -65,30 +56,22 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{
-          fontFamily: '"DM Serif Display", Georgia, serif',
-          fontSize: '28px',
-          color: '#1A1815',
-          marginBottom: '8px',
-          lineHeight: 1.2,
-        }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 600, color: '#1A1815', marginBottom: '8px', lineHeight: 1.3 }}>
           {greeting}
         </h1>
-        <p style={{ fontSize: '13px', color: '#A09B92' }}>
+        <p style={{ fontSize: '14px', color: '#A09B92' }}>
           {timing === 'morning' ? '朝のチェックイン' : '夜のチェックイン'}
         </p>
       </div>
 
       <div style={{
-        background: '#FFFFFF',
-        border: '0.5px solid var(--border-color)',
-        borderRadius: '14px',
-        padding: '32px',
+        background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+        borderRadius: '14px', padding: '32px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
       }}>
         {/* 気分スコア */}
         <section style={{ marginBottom: '28px' }}>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#2E2B28', marginBottom: '12px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
             気分スコア <span style={{ color: '#C0392B' }}>*</span>
           </label>
           <MoodSelector value={moodScore} onChange={setMoodScore} />
@@ -96,7 +79,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
 
         {/* 感情タグ */}
         <section style={{ marginBottom: '28px' }}>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#2E2B28', marginBottom: '12px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
             今の感情 <span style={{ color: '#C0392B' }}>*</span>
             <span style={{ fontWeight: 400, color: '#A09B92', marginLeft: '8px' }}>（複数選択可）</span>
           </label>
@@ -105,36 +88,30 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
 
         {/* 自由テキスト */}
         <section style={{ marginBottom: '32px' }}>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#2E2B28', marginBottom: '12px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
             メモ
             <span style={{ fontWeight: 400, color: '#A09B92', marginLeft: '8px' }}>（任意）</span>
           </label>
           <textarea
             value={freeText}
-            onChange={(e) => setFreeText(e.target.value)}
+            onChange={e => setFreeText(e.target.value)}
             placeholder="今の気持ちを自由に（省略OK）"
             rows={3}
             style={{
-              width: '100%',
-              border: '0.5px solid var(--border-color)',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              fontSize: '14px',
-              color: '#2E2B28',
-              background: '#FFFFFF',
-              resize: 'none',
-              outline: 'none',
-              fontFamily: 'inherit',
-              lineHeight: 1.6,
-              boxSizing: 'border-box',
+              width: '100%', border: '0.5px solid var(--border-color)',
+              borderRadius: '10px', padding: '12px 14px',
+              fontSize: '16px', color: '#2E2B28', background: '#FFFFFF',
+              resize: 'none', outline: 'none', fontFamily: 'inherit',
+              lineHeight: 1.6, boxSizing: 'border-box',
+              transition: 'all 0.15s ease',
             }}
-            onFocus={(e) => { e.target.style.borderColor = '#4DAF80'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
-            onBlur={(e) => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
+            onFocus={e => { e.target.style.borderColor = '#4DAF80'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
+            onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
           />
         </section>
 
         {error && (
-          <div style={{ color: '#C0392B', fontSize: '13px', marginBottom: '16px', background: '#FDF3E3', padding: '10px 14px', borderRadius: '8px' }}>
+          <div style={{ color: '#C0392B', fontSize: '14px', marginBottom: '16px', background: '#FDF3E3', padding: '10px 14px', borderRadius: '8px' }}>
             {error}
           </div>
         )}
@@ -142,17 +119,18 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         <button
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting}
+          onMouseEnter={() => setBtnHovered(true)}
+          onMouseLeave={() => { setBtnHovered(false); setBtnPressed(false); }}
+          onMouseDown={() => setBtnPressed(true)}
+          onMouseUp={() => setBtnPressed(false)}
           style={{
             width: '100%',
-            background: isValid ? '#2D8A5F' : '#D8D5CE',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            padding: '13px 24px',
-            fontSize: '15px',
-            fontWeight: 500,
+            background: isValid ? (btnHovered ? '#1A5C3E' : '#2D8A5F') : '#D8D5CE',
+            color: 'white', border: 'none', borderRadius: '10px',
+            padding: '14px 24px', fontSize: '16px', fontWeight: 500,
             cursor: isValid && !isSubmitting ? 'pointer' : 'not-allowed',
-            transition: 'background 0.2s ease',
+            transform: btnPressed && isValid ? 'scale(0.97)' : 'scale(1)',
+            transition: 'all 0.15s ease',
           }}
         >
           {isSubmitting ? 'AIコメントを生成中...' : '記録する'}

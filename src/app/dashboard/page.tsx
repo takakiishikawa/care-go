@@ -2,50 +2,49 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import TopNav from '@/components/ui/TopNav';
-import ScoreChart from '@/components/dashboard/ScoreChart';
-import MeditationChart from '@/components/dashboard/MeditationChart';
+import ScoreLineChart from '@/components/dashboard/ScoreLineChart';
+import MeditationLineChart from '@/components/dashboard/MeditationLineChart';
 import WeeklyInsightCard from '@/components/dashboard/WeeklyInsightCard';
+import InsightPopup from '@/components/dashboard/InsightPopup';
 import { DailyScore, DailyMeditation } from '@/lib/types';
-
-function getLast7Days(): string[] {
-  const days: string[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    days.push(d.toISOString().split('T')[0]);
-  }
-  return days;
-}
+import { getCheckinWindow, getHCMHour, getLast7DaysHCM, getTodayHCM } from '@/lib/timing';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect('/login');
 
-  const today = new Date().toISOString().split('T')[0];
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+  const today = getTodayHCM();
+  const last7Days = getLast7DaysHCM();
+  const sevenDaysAgo = last7Days[0];
 
-  // 過去7日のチェックインを取得
-  const { data: checkins } = await supabase
-    .from('checkins')
-    .select('*')
-    .gte('checked_at', sevenDaysAgo.toISOString().split('T')[0] + 'T00:00:00')
-    .order('checked_at', { ascending: false });
+  const [
+    { data: checkins },
+    { data: meditationLogs },
+    { data: profile },
+  ] = await Promise.all([
+    supabase
+      .from('checkins')
+      .select('*')
+      .gte('checked_at', sevenDaysAgo + 'T00:00:00Z')
+      .order('checked_at', { ascending: false }),
+    supabase
+      .from('meditation_logs')
+      .select('*')
+      .gte('logged_at', sevenDaysAgo + 'T00:00:00Z'),
+    supabase
+      .from('profiles')
+      .select('display_name, avatar_url')
+      .eq('id', user.id)
+      .single(),
+  ]);
 
-  // 過去7日の瞑想ログを取得
-  const { data: meditationLogs } = await supabase
-    .from('meditation_logs')
-    .select('*')
-    .gte('logged_at', sevenDaysAgo.toISOString().split('T')[0] + 'T00:00:00');
-
-  // 今週のインサイトを取得
+  // 今週インサイト取得
   const now = new Date();
-  const dayOfWeek = now.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() + mondayOffset);
+  const dow = now.getUTCDay();
+  const mondayOffset = dow === 0 ? -6 : 1 - dow;
+  const weekStart = new Date(now.getTime() + 7 * 3600000); // HCM
+  weekStart.setUTCDate(weekStart.getUTCDate() + mondayOffset);
   const weekStartStr = weekStart.toISOString().split('T')[0];
 
   const { data: weeklyInsight } = await supabase
@@ -55,88 +54,79 @@ export default async function DashboardPage() {
     .single();
 
   // 今日のチェックイン
-  const todayCheckins = (checkins || []).filter(c =>
-    c.checked_at.startsWith(today)
-  );
+  const todayCheckins = (checkins || []).filter(c => c.checked_at.startsWith(today));
   const morningCheckin = todayCheckins.find(c => c.timing === 'morning');
   const eveningCheckin = todayCheckins.find(c => c.timing === 'evening');
   const latestCheckin = eveningCheckin || morningCheckin;
 
-  // 今日のスコア計算
-  const todayMorningScore = morningCheckin?.condition_score ?? null;
-  const todayEveningScore = eveningCheckin?.condition_score ?? null;
-  const todayScore = todayMorningScore !== null && todayEveningScore !== null
-    ? Math.round((todayMorningScore + todayEveningScore) / 2)
-    : todayMorningScore ?? todayEveningScore ?? null;
+  // スコア計算
+  const ms = morningCheckin?.condition_score ?? null;
+  const es = eveningCheckin?.condition_score ?? null;
+  const todayScore = ms !== null && es !== null ? Math.round((ms + es) / 2) : ms ?? es ?? null;
 
-  // 7日間のスコアデータ構築
-  const last7Days = getLast7Days();
+  // 7日間スコアデータ
   const scoreData: DailyScore[] = last7Days.map(date => {
-    const dayCheckins = (checkins || []).filter(c => c.checked_at.startsWith(date));
-    const morning = dayCheckins.find(c => c.timing === 'morning');
-    const evening = dayCheckins.find(c => c.timing === 'evening');
-    const ms = morning?.condition_score ?? null;
-    const es = evening?.condition_score ?? null;
-    const score = ms !== null && es !== null ? Math.round((ms + es) / 2) : ms ?? es ?? null;
-    return { date, score, morning_score: ms, evening_score: es };
+    const day = (checkins || []).filter(c => c.checked_at.startsWith(date));
+    const m = day.find(c => c.timing === 'morning')?.condition_score ?? null;
+    const e = day.find(c => c.timing === 'evening')?.condition_score ?? null;
+    const score = m !== null && e !== null ? Math.round((m + e) / 2) : m ?? e ?? null;
+    return { date, score, morning_score: m, evening_score: e };
   });
 
-  // 7日間の瞑想データ構築
-  const meditationData: DailyMeditation[] = last7Days.map(date => {
-    const count = (meditationLogs || []).filter(m =>
-      m.logged_at.startsWith(date)
-    ).length;
-    return { date, count };
-  });
+  // 7日間瞑想データ
+  const meditationData: DailyMeditation[] = last7Days.map(date => ({
+    date,
+    count: (meditationLogs || []).filter(m => m.logged_at.startsWith(date)).length,
+  }));
 
-  // 週次サマリー
   const validScores = scoreData.filter(d => d.score !== null).map(d => d.score!);
   const weekAvg = validScores.length > 0
     ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
     : null;
 
-  const currentHour = new Date().getHours();
-  const isMorning = currentHour < 12;
-  const nextTiming = isMorning && !morningCheckin ? 'morning' : !eveningCheckin ? 'evening' : null;
-  const nextTimingLabel = nextTiming === 'morning' ? '朝のチェックイン' : '夜のチェックイン';
+  // CTAバナー表示判定（HCM時間帯のみ）
+  const window_ = getCheckinWindow();
+  const showMorningCTA = window_ === 'morning' && !morningCheckin;
+  const showEveningCTA = window_ === 'evening' && !eveningCheckin;
+  const showCTA = showMorningCTA || showEveningCTA;
+
+  const hcmHour = getHCMHour();
+  const greeting = hcmHour < 12 ? 'おはようございます。' : 'お疲れさまでした。';
+  const ctaLabel = showMorningCTA ? '朝のチェックイン' : '夜のチェックイン';
+
+  // InsightPopup用: 過去7日のユニーク日数
+  const uniqueDays = new Set((checkins || []).map(c => c.checked_at.split('T')[0])).size;
+  const hasEnoughData = uniqueDays >= 5;
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F6F2' }}>
-      <TopNav morningDone={!!morningCheckin} eveningDone={!!eveningCheckin} />
+      <TopNav
+        morningDone={!!morningCheckin}
+        eveningDone={!!eveningCheckin}
+        profile={profile}
+        userId={user.id}
+      />
 
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 32px 64px' }}>
 
-        {/* チェックインCTA */}
-        {nextTiming && (
+        {/* チェックインCTA（時間帯内のみ） */}
+        {showCTA && (
           <div style={{
-            background: '#2D8A5F',
-            borderRadius: '14px',
-            padding: '20px 24px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            background: '#2D8A5F', borderRadius: '14px',
+            padding: '20px 24px', marginBottom: '24px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div>
-              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', marginBottom: '4px' }}>
-                {isMorning ? 'おはようございます。' : 'お疲れさまでした。'}
-              </div>
-              <div style={{ color: 'white', fontSize: '16px', fontWeight: 500 }}>
-                {nextTimingLabel}をしましょう
-              </div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginBottom: '4px' }}>{greeting}</div>
+              <div style={{ color: 'white', fontSize: '16px', fontWeight: 600 }}>{ctaLabel}をしましょう</div>
             </div>
-            <Link
-              href="/checkin"
-              style={{
-                background: 'white',
-                color: '#2D8A5F',
-                borderRadius: '10px',
-                padding: '10px 20px',
-                fontSize: '14px',
-                fontWeight: 500,
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-              }}
+            <Link href="/checkin" style={{
+              background: 'white', color: '#2D8A5F', borderRadius: '10px',
+              padding: '10px 20px', fontSize: '14px', fontWeight: 600,
+              textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s ease',
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F5EF'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; }}
             >
               チェックイン →
             </Link>
@@ -145,74 +135,56 @@ export default async function DashboardPage() {
 
         {/* 本日のコンディション */}
         <div style={{
-          background: '#FFFFFF',
-          border: '0.5px solid var(--border-color)',
-          borderRadius: '14px',
-          padding: '24px',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          marginBottom: '20px',
+          background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+          borderRadius: '14px', padding: '24px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: '20px',
         }}>
-          <div style={{ fontSize: '13px', color: '#A09B92', marginBottom: '16px', fontWeight: 500 }}>
+          <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '16px', fontWeight: 500 }}>
             本日のコンディション
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '20px' }}>
             <div>
-              <div style={{ fontSize: '11px', color: '#A09B92', marginBottom: '4px' }}>総合スコア</div>
-              <div style={{
-                fontFamily: '"DM Serif Display", Georgia, serif',
-                fontSize: '56px',
-                lineHeight: 1,
-                color: todayScore !== null ? '#1A5C3E' : '#D8D5CE',
-              }}>
+              <div style={{ fontSize: '12px', color: '#A09B92', marginBottom: '4px' }}>総合スコア</div>
+              <div style={{ fontSize: '48px', fontWeight: 600, lineHeight: 1, color: todayScore !== null ? '#1A5C3E' : '#D8D5CE' }}>
                 {todayScore ?? '–'}
               </div>
-              {todayScore !== null && (
-                <div style={{ fontSize: '13px', color: '#A09B92' }}>/ 100</div>
-              )}
+              {todayScore !== null && <div style={{ fontSize: '14px', color: '#A09B92' }}>/ 100</div>}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ background: '#F8F6F2', borderRadius: '10px', padding: '12px 16px', minWidth: '120px' }}>
-                <div style={{ fontSize: '11px', color: '#A09B92', marginBottom: '4px' }}>朝スコア</div>
-                <div style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: '24px', color: '#1A1815' }}>
-                  {todayMorningScore ?? '–'}
-                </div>
-              </div>
-              <div style={{ background: '#F8F6F2', borderRadius: '10px', padding: '12px 16px', minWidth: '120px' }}>
-                <div style={{ fontSize: '11px', color: '#A09B92', marginBottom: '4px' }}>夜スコア</div>
-                <div style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: '24px', color: '#1A1815' }}>
-                  {todayEveningScore ?? '–'}
-                </div>
-              </div>
+              {(['morning', 'evening'] as const).map(t => {
+                const score = t === 'morning' ? ms : es;
+                const label = t === 'morning' ? '朝スコア' : '夜スコア';
+                return (
+                  <div key={t} style={{ background: '#F8F6F2', borderRadius: '10px', padding: '12px 16px', minWidth: '120px' }}>
+                    <div style={{ fontSize: '12px', color: '#A09B92', marginBottom: '4px' }}>{label}</div>
+                    <div style={{ fontSize: '24px', fontWeight: 600, color: '#1A1815' }}>{score ?? '–'}</div>
+                  </div>
+                );
+              })}
             </div>
 
             {weekAvg !== null && (
               <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                <div style={{ fontSize: '11px', color: '#A09B92', marginBottom: '4px' }}>週平均</div>
-                <div style={{ fontFamily: '"DM Serif Display", Georgia, serif', fontSize: '28px', color: '#2D8A5F' }}>
-                  {weekAvg}
-                </div>
+                <div style={{ fontSize: '12px', color: '#A09B92', marginBottom: '4px' }}>週平均</div>
+                <div style={{ fontSize: '32px', fontWeight: 600, color: '#2D8A5F' }}>{weekAvg}</div>
               </div>
             )}
           </div>
 
           {latestCheckin?.ai_comment && (
             <div style={{
-              background: '#E8F5EF',
-              borderLeft: '3px solid #4DAF80',
-              borderRadius: '0 10px 10px 0',
-              padding: '12px 16px',
+              background: '#E8F5EF', borderLeft: '3px solid #4DAF80',
+              borderRadius: '0 10px 10px 0', padding: '12px 16px',
             }}>
-              <div style={{ fontSize: '11px', color: '#2D8A5F', marginBottom: '4px', fontWeight: 500 }}>AIコメント</div>
-              <div style={{ fontSize: '13px', color: '#1A5C3E', lineHeight: 1.6 }}>
-                {latestCheckin.ai_comment}
-              </div>
+              <div style={{ fontSize: '12px', color: '#2D8A5F', marginBottom: '4px', fontWeight: 500 }}>AIコメント</div>
+              <div style={{ fontSize: '14px', color: '#1A5C3E', lineHeight: 1.6 }}>{latestCheckin.ai_comment}</div>
             </div>
           )}
 
           {!morningCheckin && !eveningCheckin && (
-            <div style={{ color: '#A09B92', fontSize: '13px', textAlign: 'center', padding: '16px 0' }}>
+            <div style={{ color: '#A09B92', fontSize: '14px', textAlign: 'center', padding: '16px 0' }}>
               本日のチェックインはまだありません
             </div>
           )}
@@ -220,32 +192,26 @@ export default async function DashboardPage() {
 
         {/* グラフ行 */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' }}>
-          {/* スコア推移 */}
           <div style={{
-            background: '#FFFFFF',
-            border: '0.5px solid var(--border-color)',
-            borderRadius: '14px',
-            padding: '24px',
+            background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+            borderRadius: '14px', padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}>
-            <div style={{ fontSize: '13px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
+            <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
               コンディションスコア（7日間）
             </div>
-            <ScoreChart data={scoreData} />
+            <ScoreLineChart data={scoreData} />
           </div>
 
-          {/* 瞑想回数 */}
           <div style={{
-            background: '#FFFFFF',
-            border: '0.5px solid var(--border-color)',
-            borderRadius: '14px',
-            padding: '24px',
+            background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+            borderRadius: '14px', padding: '24px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}>
-            <div style={{ fontSize: '13px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
+            <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
               瞑想回数（7日間）
             </div>
-            <MeditationChart data={meditationData} />
+            <MeditationLineChart data={meditationData} />
           </div>
         </div>
 
@@ -253,6 +219,9 @@ export default async function DashboardPage() {
         <WeeklyInsightCard insight={weeklyInsight} />
 
       </main>
+
+      {/* 日曜日ポップアップ */}
+      <InsightPopup weekStartStr={weekStartStr} hasEnoughData={hasEnoughData} />
     </div>
   );
 }

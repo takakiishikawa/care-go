@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, DM_Sans } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const dmSerifDisplay = DM_Serif_Display({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
 const dmSans = DM_Sans({
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
@@ -27,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${dmSerifDisplay.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen" style={{ fontFamily: 'var(--font-body, "DM Sans", system-ui, sans-serif)' }}>
+    <html lang="ja" className={dmSans.variable}>
+      <body style={{ fontFamily: 'var(--font-body, "DM Sans", system-ui, sans-serif)' }}>
         {children}
       </body>
     </html>
