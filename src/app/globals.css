@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
+@theme {
+  /* Primary - Warm Green */
+  --color-primary-50: #E8F5EF;
+  --color-primary-100: #C3E6D2;
+  --color-primary-200: #9AD4B3;
+  --color-primary-400: #4DAF80;
+  --color-primary-600: #2D8A5F;
+  --color-primary-800: #1A5C3E;
+  --color-primary-900: #0E3D29;
+
+  /* Secondary - Warm Amber */
+  --color-secondary-50: #FDF3E3;
+  --color-secondary-100: #FAE0B0;
+  --color-secondary-200: #F5C878;
+  --color-secondary-400: #E8A030;
+  --color-secondary-600: #C07818;
+  --color-secondary-800: #7A4C0A;
+
+  /* Neutral - Warm */
+  --color-neutral-0: #FFFFFF;
+  --color-neutral-50: #F8F6F2;
+  --color-neutral-100: #EEECE8;
+  --color-neutral-200: #D8D5CE;
+  --color-neutral-400: #A09B92;
+  --color-neutral-600: #6B6660;
+  --color-neutral-800: #2E2B28;
+  --color-neutral-900: #1A1815;
+
+  /* Semantic */
+  --color-success: #2D8A5F;
+  --color-warning: #C07818;
+  --color-danger: #C0392B;
+  --color-info: #2980B9;
+
+  /* Fonts */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-focus: 0 0 0 3px rgba(45, 138, 95, 0.25);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --border-color: rgba(46, 43, 40, 0.12);
+  --border-color-hover: rgba(46, 43, 40, 0.25);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #F8F6F2;
+  color: #1A1815;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.font-display {
+  font-family: 'DM Serif Display', Georgia, serif;
 }
