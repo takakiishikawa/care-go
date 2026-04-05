@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Sun, Moon, TrendingUp, Wind, Sparkles, Activity, PenLine } from 'lucide-react';
+import { Sun, Moon, TrendingUp, Wind, Sparkles, Activity } from 'lucide-react';
 import TopNav from '@/components/ui/TopNav';
 import ScoreLineChart from '@/components/dashboard/ScoreLineChart';
 import MeditationLineChart from '@/components/dashboard/MeditationLineChart';
@@ -9,6 +8,7 @@ import WeeklyInsightCard from '@/components/dashboard/WeeklyInsightCard';
 import InsightPopup from '@/components/dashboard/InsightPopup';
 import { DailyScore, DailyMeditation } from '@/lib/types';
 import { getCheckinWindow, getHCMHour, getLast7DaysHCM, getTodayHCM } from '@/lib/timing';
+import CheckinCTABanner from '@/components/dashboard/CheckinCTABanner';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -78,7 +78,6 @@ export default async function DashboardPage() {
   const hcmHour = getHCMHour();
   const greeting = hcmHour < 12 ? 'おはようございます。' : 'お疲れさまでした。';
   const ctaLabel = showMorningCTA ? '朝のチェックイン' : '夜のチェックイン';
-  const ctaIcon = showMorningCTA ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />;
 
   // Insight popup
   const uniqueDays = new Set((checkins || []).map(c => c.checked_at.split('T')[0])).size;
@@ -92,29 +91,11 @@ export default async function DashboardPage() {
 
         {/* チェックインCTA */}
         {showCTA && (
-          <div style={{
-            background: '#2D8A5F', borderRadius: '14px', padding: '20px 24px', marginBottom: '24px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}>
-            <div>
-              <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '14px', marginBottom: '4px' }}>{greeting}</div>
-              <div style={{ color: 'white', fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '7px' }}>
-                {ctaIcon}{ctaLabel}をしましょう
-              </div>
-            </div>
-            <Link href="/checkin" style={{
-              background: 'white', color: '#2D8A5F', borderRadius: '10px',
-              padding: '10px 20px', fontSize: '14px', fontWeight: 600,
-              textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s ease',
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-            }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F5EF'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; }}
-            >
-              <PenLine size={14} strokeWidth={2} />
-              チェックイン →
-            </Link>
-          </div>
+          <CheckinCTABanner
+            greeting={greeting}
+            ctaLabel={ctaLabel}
+            timing={showMorningCTA ? 'morning' : 'evening'}
+          />
         )}
 
         {/* 本日のコンディション */}

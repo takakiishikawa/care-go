@@ -3,11 +3,10 @@ import { redirect } from 'next/navigation';
 import { getTodayHCM } from '@/lib/timing';
 import TopNav from '@/components/ui/TopNav';
 import {
-  Eye, Lightbulb, Wind, ArrowDown,
+  Wind, ArrowDown,
   Sun, Moon, Target, BarChart3,
   CircleCheck, CircleX,
 } from 'lucide-react';
-import Logo from '@/components/ui/Logo';
 
 export default async function ConceptPage() {
   const supabase = await createClient();
@@ -43,43 +42,12 @@ export default async function ConceptPage() {
     marginBottom: '12px',
   };
 
-  const h2 = {
-    fontSize: '22px',
-    fontWeight: 600,
-    color: '#1A1815',
-    marginBottom: '16px',
-    lineHeight: 1.35,
-  };
-
   const body = {
     fontSize: '16px',
     color: '#2E2B28',
     lineHeight: 1.85,
   };
 
-  const pillars = [
-    {
-      icon: <Eye size={22} strokeWidth={1.8} color="#2D8A5F" />,
-      label: '観察する',
-      desc: '自分の状態をリアルタイムで把握する',
-      means: '朝晩チェックイン',
-      bg: '#E8F5EF',
-    },
-    {
-      icon: <Lightbulb size={22} strokeWidth={1.8} color="#C07818" />,
-      label: '気づく',
-      desc: 'パターンと傾向を理解する',
-      means: 'AIインサイト・スコア推移',
-      bg: '#FDF3E3',
-    },
-    {
-      icon: <Wind size={22} strokeWidth={1.8} color="#2980B9" />,
-      label: '整える',
-      desc: '瞑想との連携で状態を回復させる',
-      means: '瞑想ログ・誘導',
-      bg: '#EAF4FB',
-    },
-  ];
 
   const userStory = [
     { icon: <Sun size={16} strokeWidth={2} color="#C07818" />, text: '朝の瞑想前にチェックイン（気分・感情を記録）', color: '#FDF3E3', border: '#FAE0B0' },
@@ -97,18 +65,49 @@ export default async function ConceptPage() {
 
       <main style={{ maxWidth: '820px', margin: '0 auto', padding: '52px 40px 80px' }}>
 
-        {/* Hero */}
-        <section style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-            <Logo size="lg" />
-          </div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#1A1815', lineHeight: 1.3, marginBottom: '16px' }}>
-            良いコンディションの安定を、<br />AIと一緒に作る。
+        {/* ドキュメントヘッダー */}
+        <section style={{ marginBottom: '56px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1815', marginBottom: '40px' }}>
+            CareGo
           </h1>
-          <p style={{ fontSize: '16px', color: '#6B6660', lineHeight: 1.75, maxWidth: '480px', margin: '0 auto' }}>
-            毎日の気分・感情を記録し、AIがパターンを分析してインサイトを返す。
-            瞑想との連携で習慣化を促す、自分だけのコンディション管理アプリ。
-          </p>
+
+          {/* コアバリュー */}
+          <div style={{ marginBottom: '36px' }}>
+            <p style={sectionLabel}>コアバリュー</p>
+            <p style={{ fontSize: '18px', fontWeight: 600, color: '#1A1815', lineHeight: 1.5, margin: 0 }}>
+              良いコンディションの安定を、AIと一緒に作る。
+            </p>
+          </div>
+
+          {/* 背景・課題 */}
+          <div style={{ marginBottom: '36px' }}>
+            <p style={sectionLabel}>背景・課題</p>
+            <p style={{ ...body, marginBottom: '20px' }}>
+              義務感で動き続けると、じわじわとエネルギーが削られていく。
+              コンディションが不安定になると、学習・仕事・人間関係、
+              あらゆる領域のパフォーマンスが落ちる。
+              逆に、調子が良い日は同じことをしても全てがうまく回る。
+            </p>
+            <div style={{
+              padding: '16px 20px',
+              background: '#E8F5EF', borderRadius: '10px',
+              borderLeft: '3px solid #2D8A5F',
+            }}>
+              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#1A5C3E', lineHeight: 1.6 }}>
+                コンディションを安定させることが、生活全体を底上げする<br />
+                最も効果的なアプローチである。
+              </p>
+            </div>
+          </div>
+
+          {/* プロダクトの定義 */}
+          <div>
+            <p style={sectionLabel}>プロダクトの定義</p>
+            <p style={{ ...body, margin: 0 }}>
+              毎日の気分・感情をチェックインで記録し、AIがパターンを
+              分析してインサイトを返す。瞑想との連携で習慣化を促す。
+            </p>
+          </div>
         </section>
 
         {/* プロダクトスコープ */}
@@ -145,59 +144,6 @@ export default async function ConceptPage() {
                 ))}
               </ul>
             </div>
-          </div>
-        </section>
-
-        {/* 課題仮説 */}
-        <section style={{ marginBottom: '48px' }}>
-          <p style={sectionLabel}>課題仮説</p>
-          <div style={{ ...card, background: '#F8F6F2', border: '0.5px solid #D8D5CE' }}>
-            <p style={{ ...body, margin: 0 }}>
-              「やらないといけない」駆動の行動が多い状態と、日常的な人とのつながりが少ない孤独感が重なることで、
-              <strong style={{ color: '#1A1815' }}>慢性的なストレスが蓄積する。</strong>
-              その結果、コンディションが不安定になり、英語学習・筋トレ・仕事・人間関係など生活のあらゆる領域でパフォーマンスが落ちる。
-            </p>
-            <div style={{
-              marginTop: '20px', padding: '16px 20px',
-              background: '#E8F5EF', borderRadius: '10px',
-              borderLeft: '3px solid #2D8A5F',
-            }}>
-              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#1A5C3E', lineHeight: 1.6 }}>
-                良い状態の時は全てがうまく回る。<br />
-                だから、良い状態を安定させることが最も上流の解決策である。
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 3つの軸 */}
-        <section style={{ marginBottom: '48px' }}>
-          <p style={sectionLabel}>コンディションを安定させる3つの軸</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-            {pillars.map(p => (
-              <div key={p.label} style={{ ...card }}>
-                <div style={{
-                  width: '44px', height: '44px', borderRadius: '12px',
-                  background: p.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  marginBottom: '16px',
-                }}>
-                  {p.icon}
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: 600, color: '#1A1815', marginBottom: '8px' }}>
-                  {p.label}
-                </div>
-                <p style={{ fontSize: '14px', color: '#6B6660', lineHeight: 1.6, marginBottom: '14px' }}>
-                  {p.desc}
-                </p>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  background: '#F8F6F2', borderRadius: '6px',
-                  padding: '5px 10px', fontSize: '12px', fontWeight: 500, color: '#2E2B28',
-                }}>
-                  {p.means}
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
