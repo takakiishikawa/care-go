@@ -4,6 +4,7 @@ import CheckinForm from '@/components/checkin/CheckinForm';
 import TopNav from '@/components/ui/TopNav';
 import { getCheckinTiming, getTodayHCM } from '@/lib/timing';
 import Link from 'next/link';
+import { CheckCircle, LayoutDashboard } from 'lucide-react';
 
 export default async function CheckinPage() {
   const supabase = await createClient();
@@ -46,7 +47,12 @@ export default async function CheckinPage() {
             borderRadius: '14px', padding: '48px 32px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.06)', textAlign: 'center',
           }}>
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>✓</div>
+            <div style={{
+              width: '60px', height: '60px', background: '#E8F5EF', borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+            }}>
+              <CheckCircle size={28} strokeWidth={1.8} color="#2D8A5F" />
+            </div>
             <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A5C3E', marginBottom: '12px' }}>
               {timing === 'morning' ? '朝のチェックイン' : '夜のチェックイン'}は完了済みです
             </h2>
@@ -56,10 +62,11 @@ export default async function CheckinPage() {
                 : '今日のチェックインは完了しています。お疲れさまでした。'}
             </p>
             <Link href="/dashboard" style={{
-              display: 'inline-block', marginTop: '24px',
+              display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '24px',
               background: '#2D8A5F', color: 'white', borderRadius: '10px',
               padding: '11px 24px', fontSize: '16px', fontWeight: 500, textDecoration: 'none',
             }}>
+              <LayoutDashboard size={15} strokeWidth={2} />
               ダッシュボードへ
             </Link>
           </div>

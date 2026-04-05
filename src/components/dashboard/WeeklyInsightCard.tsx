@@ -1,3 +1,4 @@
+import { BrainCircuit } from 'lucide-react';
 import { WeeklyInsight } from '@/lib/types';
 
 interface WeeklyInsightCardProps {
@@ -7,14 +8,16 @@ interface WeeklyInsightCardProps {
 export default function WeeklyInsightCard({ insight }: WeeklyInsightCardProps) {
   return (
     <div style={{
-      background: '#FFFFFF',
-      border: '0.5px solid var(--border-color)',
-      borderRadius: '14px',
-      padding: '24px',
+      background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+      borderRadius: '14px', padding: '24px',
       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
     }}>
-      <div style={{ fontSize: '14px', color: '#A09B92', fontWeight: 500, marginBottom: '16px' }}>
-        週次AIインサイト
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px',
+        fontSize: '14px', color: '#A09B92', fontWeight: 500, marginBottom: '16px',
+      }}>
+        <BrainCircuit size={16} strokeWidth={1.8} color="#A09B92" />
+        Coa の週次レポート
       </div>
 
       {insight ? (
@@ -31,7 +34,7 @@ export default function WeeklyInsightCard({ insight }: WeeklyInsightCardProps) {
         </div>
       ) : (
         <p style={{ fontSize: '14px', color: '#A09B92', margin: 0, lineHeight: 1.7 }}>
-          日曜日にログインすると、今週のインサイトを生成できます。
+          日曜日にログインすると、Coaが今週を振り返ります。
         </p>
       )}
     </div>

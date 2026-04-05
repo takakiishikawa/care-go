@@ -1,81 +1,76 @@
 'use client';
 
+import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/api/auth/callback`,
-      },
+      options: { redirectTo: `${window.location.origin}/api/auth/callback` },
     });
   };
 
   return (
     <div style={{
-      minHeight: '100vh',
-      background: '#F8F6F2',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '32px',
+      minHeight: '100vh', background: '#F8F6F2',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px',
     }}>
       <div style={{
-        background: '#FFFFFF',
-        border: '0.5px solid var(--border-color)',
-        borderRadius: '20px',
-        padding: '48px',
-        maxWidth: '400px',
-        width: '100%',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-        textAlign: 'center',
+        background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+        borderRadius: '20px', padding: '52px 48px',
+        maxWidth: '400px', width: '100%',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)', textAlign: 'center',
       }}>
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{
-            fontFamily: '"DM Serif Display", Georgia, serif',
-            fontSize: '40px',
-            color: '#2D8A5F',
-            marginBottom: '12px',
-            lineHeight: 1.1,
-          }}>
-            CareGo
-          </h1>
-          <p style={{ fontSize: '15px', color: '#6B6660', lineHeight: 1.7 }}>
-            良いコンディションの安定を、<br />AIと一緒に作る。
-          </p>
+        {/* ロゴ */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+          <Logo size="lg" />
+        </div>
+        <p style={{ fontSize: '15px', color: '#6B6660', lineHeight: 1.75, marginBottom: '36px' }}>
+          良いコンディションの安定を、<br />AIパートナー Coa と一緒に作る。
+        </p>
+
+        {/* 特徴バッジ */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px', flexWrap: 'wrap' }}>
+          {['☀️ 毎朝のチェックイン', '🌙 毎夜の振り返り', '✨ AIの気づき'].map(text => (
+            <span key={text} style={{
+              fontSize: '12px', padding: '4px 12px', borderRadius: '9999px',
+              background: '#E8F5EF', color: '#1A5C3E', border: '0.5px solid #9AD4B3',
+            }}>
+              {text}
+            </span>
+          ))}
         </div>
 
         <button
           onClick={handleGoogleLogin}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => { setHovered(false); setPressed(false); }}
+          onMouseDown={() => setPressed(true)}
+          onMouseUp={() => setPressed(false)}
           style={{
-            width: '100%',
-            background: '#2D8A5F',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            padding: '13px 24px',
-            fontSize: '15px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px',
+            width: '100%', background: hovered ? '#1A5C3E' : '#2D8A5F',
+            color: 'white', border: 'none', borderRadius: '10px',
+            padding: '14px 24px', fontSize: '16px', fontWeight: 500, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+            transform: pressed ? 'scale(0.98)' : 'scale(1)',
+            transition: 'all 0.15s ease',
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="white" opacity="0.9"/>
-            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="white" opacity="0.8"/>
-            <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="white" opacity="0.7"/>
-            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="white" opacity="0.6"/>
+          {/* Google icon */}
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
           </svg>
           Googleでログイン
         </button>
 
-        <p style={{ marginTop: '24px', fontSize: '11px', color: '#A09B92' }}>
-          毎日のコンディションを記録して、<br />パターンを発見しよう。
+        <p style={{ marginTop: '20px', fontSize: '12px', color: '#A09B92' }}>
+          毎日のコンディションを記録して、パターンを発見しよう。
         </p>
       </div>
     </div>

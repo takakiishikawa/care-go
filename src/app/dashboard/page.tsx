@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Sun, Moon, TrendingUp, Wind, Sparkles, Activity, PenLine } from 'lucide-react';
 import TopNav from '@/components/ui/TopNav';
 import ScoreLineChart from '@/components/dashboard/ScoreLineChart';
 import MeditationLineChart from '@/components/dashboard/MeditationLineChart';
@@ -23,35 +24,21 @@ export default async function DashboardPage() {
     { data: meditationLogs },
     { data: profile },
   ] = await Promise.all([
-    supabase
-      .from('checkins')
-      .select('*')
-      .gte('checked_at', sevenDaysAgo + 'T00:00:00Z')
-      .order('checked_at', { ascending: false }),
-    supabase
-      .from('meditation_logs')
-      .select('*')
-      .gte('logged_at', sevenDaysAgo + 'T00:00:00Z'),
-    supabase
-      .from('profiles')
-      .select('display_name, avatar_url')
-      .eq('id', user.id)
-      .single(),
+    supabase.from('checkins').select('*').gte('checked_at', sevenDaysAgo + 'T00:00:00Z').order('checked_at', { ascending: false }),
+    supabase.from('meditation_logs').select('*').gte('logged_at', sevenDaysAgo + 'T00:00:00Z'),
+    supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single(),
   ]);
 
-  // 今週インサイト取得
+  // 週次インサイト
   const now = new Date();
   const dow = now.getUTCDay();
   const mondayOffset = dow === 0 ? -6 : 1 - dow;
-  const weekStart = new Date(now.getTime() + 7 * 3600000); // HCM
+  const weekStart = new Date(now.getTime() + 7 * 3600000);
   weekStart.setUTCDate(weekStart.getUTCDate() + mondayOffset);
   const weekStartStr = weekStart.toISOString().split('T')[0];
 
   const { data: weeklyInsight } = await supabase
-    .from('weekly_insights')
-    .select('*')
-    .eq('week_start', weekStartStr)
-    .single();
+    .from('weekly_insights').select('*').eq('week_start', weekStartStr).single();
 
   // 今日のチェックイン
   const todayCheckins = (checkins || []).filter(c => c.checked_at.startsWith(today));
@@ -59,12 +46,11 @@ export default async function DashboardPage() {
   const eveningCheckin = todayCheckins.find(c => c.timing === 'evening');
   const latestCheckin = eveningCheckin || morningCheckin;
 
-  // スコア計算
   const ms = morningCheckin?.condition_score ?? null;
   const es = eveningCheckin?.condition_score ?? null;
   const todayScore = ms !== null && es !== null ? Math.round((ms + es) / 2) : ms ?? es ?? null;
 
-  // 7日間スコアデータ
+  // 7日間データ
   const scoreData: DailyScore[] = last7Days.map(date => {
     const day = (checkins || []).filter(c => c.checked_at.startsWith(date));
     const m = day.find(c => c.timing === 'morning')?.condition_score ?? null;
@@ -73,7 +59,6 @@ export default async function DashboardPage() {
     return { date, score, morning_score: m, evening_score: e };
   });
 
-  // 7日間瞑想データ
   const meditationData: DailyMeditation[] = last7Days.map(date => ({
     date,
     count: (meditationLogs || []).filter(m => m.logged_at.startsWith(date)).length,
@@ -84,7 +69,7 @@ export default async function DashboardPage() {
     ? Math.round(validScores.reduce((a, b) => a + b, 0) / validScores.length)
     : null;
 
-  // CTAバナー表示判定（HCM時間帯のみ）
+  // CTA表示判定
   const window_ = getCheckinWindow();
   const showMorningCTA = window_ === 'morning' && !morningCheckin;
   const showEveningCTA = window_ === 'evening' && !eveningCheckin;
@@ -93,41 +78,40 @@ export default async function DashboardPage() {
   const hcmHour = getHCMHour();
   const greeting = hcmHour < 12 ? 'おはようございます。' : 'お疲れさまでした。';
   const ctaLabel = showMorningCTA ? '朝のチェックイン' : '夜のチェックイン';
+  const ctaIcon = showMorningCTA ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />;
 
-  // InsightPopup用: 過去7日のユニーク日数
+  // Insight popup
   const uniqueDays = new Set((checkins || []).map(c => c.checked_at.split('T')[0])).size;
   const hasEnoughData = uniqueDays >= 5;
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8F6F2' }}>
-      <TopNav
-        morningDone={!!morningCheckin}
-        eveningDone={!!eveningCheckin}
-        profile={profile}
-        userId={user.id}
-      />
+      <TopNav morningDone={!!morningCheckin} eveningDone={!!eveningCheckin} profile={profile} userId={user.id} />
 
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 32px 64px' }}>
 
-        {/* チェックインCTA（時間帯内のみ） */}
+        {/* チェックインCTA */}
         {showCTA && (
           <div style={{
-            background: '#2D8A5F', borderRadius: '14px',
-            padding: '20px 24px', marginBottom: '24px',
+            background: '#2D8A5F', borderRadius: '14px', padding: '20px 24px', marginBottom: '24px',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <div>
-              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', marginBottom: '4px' }}>{greeting}</div>
-              <div style={{ color: 'white', fontSize: '16px', fontWeight: 600 }}>{ctaLabel}をしましょう</div>
+              <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '14px', marginBottom: '4px' }}>{greeting}</div>
+              <div style={{ color: 'white', fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '7px' }}>
+                {ctaIcon}{ctaLabel}をしましょう
+              </div>
             </div>
             <Link href="/checkin" style={{
               background: 'white', color: '#2D8A5F', borderRadius: '10px',
               padding: '10px 20px', fontSize: '14px', fontWeight: 600,
               textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s ease',
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
             }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F5EF'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; }}
             >
+              <PenLine size={14} strokeWidth={2} />
               チェックイン →
             </Link>
           </div>
@@ -139,7 +123,11 @@ export default async function DashboardPage() {
           borderRadius: '14px', padding: '24px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.06)', marginBottom: '20px',
         }}>
-          <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '16px', fontWeight: 500 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500,
+          }}>
+            <Activity size={15} strokeWidth={2} color="#A09B92" />
             本日のコンディション
           </div>
 
@@ -153,16 +141,18 @@ export default async function DashboardPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(['morning', 'evening'] as const).map(t => {
-                const score = t === 'morning' ? ms : es;
-                const label = t === 'morning' ? '朝スコア' : '夜スコア';
-                return (
-                  <div key={t} style={{ background: '#F8F6F2', borderRadius: '10px', padding: '12px 16px', minWidth: '120px' }}>
-                    <div style={{ fontSize: '12px', color: '#A09B92', marginBottom: '4px' }}>{label}</div>
-                    <div style={{ fontSize: '24px', fontWeight: 600, color: '#1A1815' }}>{score ?? '–'}</div>
+              {([
+                { t: 'morning' as const, score: ms, Icon: Sun, label: '朝スコア' },
+                { t: 'evening' as const, score: es, Icon: Moon, label: '夜スコア' },
+              ]).map(({ t, score, Icon, label }) => (
+                <div key={t} style={{ background: '#F8F6F2', borderRadius: '10px', padding: '10px 16px', minWidth: '128px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#A09B92', marginBottom: '4px' }}>
+                    <Icon size={11} strokeWidth={2} />
+                    {label}
                   </div>
-                );
-              })}
+                  <div style={{ fontSize: '24px', fontWeight: 600, color: '#1A1815' }}>{score ?? '–'}</div>
+                </div>
+              ))}
             </div>
 
             {weekAvg !== null && (
@@ -176,10 +166,16 @@ export default async function DashboardPage() {
           {latestCheckin?.ai_comment && (
             <div style={{
               background: '#E8F5EF', borderLeft: '3px solid #4DAF80',
-              borderRadius: '0 10px 10px 0', padding: '12px 16px',
+              borderRadius: '0 10px 10px 0', padding: '14px 16px',
             }}>
-              <div style={{ fontSize: '12px', color: '#2D8A5F', marginBottom: '4px', fontWeight: 500 }}>AIコメント</div>
-              <div style={{ fontSize: '14px', color: '#1A5C3E', lineHeight: 1.6 }}>{latestCheckin.ai_comment}</div>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                fontSize: '12px', color: '#2D8A5F', marginBottom: '6px', fontWeight: 600,
+              }}>
+                <Sparkles size={13} strokeWidth={2} />
+                Coa のひとこと
+              </div>
+              <div style={{ fontSize: '14px', color: '#1A5C3E', lineHeight: 1.7 }}>{latestCheckin.ai_comment}</div>
             </div>
           )}
 
@@ -194,10 +190,13 @@ export default async function DashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '20px' }}>
           <div style={{
             background: '#FFFFFF', border: '0.5px solid var(--border-color)',
-            borderRadius: '14px', padding: '24px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            borderRadius: '14px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}>
-            <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '7px',
+              fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500,
+            }}>
+              <TrendingUp size={15} strokeWidth={2} color="#A09B92" />
               コンディションスコア（7日間）
             </div>
             <ScoreLineChart data={scoreData} />
@@ -205,10 +204,13 @@ export default async function DashboardPage() {
 
           <div style={{
             background: '#FFFFFF', border: '0.5px solid var(--border-color)',
-            borderRadius: '14px', padding: '24px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            borderRadius: '14px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
           }}>
-            <div style={{ fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '7px',
+              fontSize: '14px', color: '#A09B92', marginBottom: '20px', fontWeight: 500,
+            }}>
+              <Wind size={15} strokeWidth={2} color="#A09B92" />
               瞑想回数（7日間）
             </div>
             <MeditationLineChart data={meditationData} />
@@ -217,10 +219,8 @@ export default async function DashboardPage() {
 
         {/* 週次インサイト */}
         <WeeklyInsightCard insight={weeklyInsight} />
-
       </main>
 
-      {/* 日曜日ポップアップ */}
       <InsightPopup weekStartStr={weekStartStr} hasEnoughData={hasEnoughData} />
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Smile, Tag, NotebookPen, Loader2 } from 'lucide-react';
 import MoodSelector from './MoodSelector';
 import EmotionTags from './EmotionTags';
 
@@ -29,7 +30,6 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
     if (!isValid) return;
     setIsSubmitting(true);
     setError(null);
-
     try {
       const res = await fetch('/api/checkin', {
         method: 'POST',
@@ -38,10 +38,8 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '送信に失敗しました'); return; }
-
       const params = new URLSearchParams({
-        id: data.checkin.id,
-        timing,
+        id: data.checkin.id, timing,
         comment: data.checkin.ai_comment || '',
         score: String(data.checkin.condition_score || 0),
       });
@@ -56,11 +54,11 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 600, color: '#1A1815', marginBottom: '8px', lineHeight: 1.3 }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 600, color: '#1A1815', marginBottom: '8px', lineHeight: 1.3 }}>
           {greeting}
         </h1>
         <p style={{ fontSize: '14px', color: '#A09B92' }}>
-          {timing === 'morning' ? '朝のチェックイン' : '夜のチェックイン'}
+          {timing === 'morning' ? '☀️ 朝のチェックイン' : '🌙 夜のチェックイン'}
         </p>
       </div>
 
@@ -71,26 +69,40 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
       }}>
         {/* 気分スコア */}
         <section style={{ marginBottom: '28px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
-            気分スコア <span style={{ color: '#C0392B' }}>*</span>
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+          }}>
+            <Smile size={16} strokeWidth={2} color="#2D8A5F" />
+            今の気分
+            <span style={{ color: '#C0392B', fontWeight: 400 }}>*</span>
           </label>
           <MoodSelector value={moodScore} onChange={setMoodScore} />
         </section>
 
         {/* 感情タグ */}
         <section style={{ marginBottom: '28px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
-            今の感情 <span style={{ color: '#C0392B' }}>*</span>
-            <span style={{ fontWeight: 400, color: '#A09B92', marginLeft: '8px' }}>（複数選択可）</span>
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+          }}>
+            <Tag size={15} strokeWidth={2} color="#2D8A5F" />
+            感情タグ
+            <span style={{ color: '#C0392B', fontWeight: 400 }}>*</span>
+            <span style={{ fontWeight: 400, color: '#A09B92', fontSize: '13px' }}>複数選択可</span>
           </label>
           <EmotionTags selected={emotionTags} onChange={setEmotionTags} />
         </section>
 
         {/* 自由テキスト */}
         <section style={{ marginBottom: '32px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px' }}>
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '7px',
+            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+          }}>
+            <NotebookPen size={15} strokeWidth={2} color="#2D8A5F" />
             メモ
-            <span style={{ fontWeight: 400, color: '#A09B92', marginLeft: '8px' }}>（任意）</span>
+            <span style={{ fontWeight: 400, color: '#A09B92', fontSize: '13px' }}>任意</span>
           </label>
           <textarea
             value={freeText}
@@ -102,8 +114,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
               borderRadius: '10px', padding: '12px 14px',
               fontSize: '16px', color: '#2E2B28', background: '#FFFFFF',
               resize: 'none', outline: 'none', fontFamily: 'inherit',
-              lineHeight: 1.6, boxSizing: 'border-box',
-              transition: 'all 0.15s ease',
+              lineHeight: 1.6, boxSizing: 'border-box', transition: 'all 0.15s ease',
             }}
             onFocus={e => { e.target.style.borderColor = '#4DAF80'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
             onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
@@ -124,7 +135,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           onMouseDown={() => setBtnPressed(true)}
           onMouseUp={() => setBtnPressed(false)}
           style={{
-            width: '100%',
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             background: isValid ? (btnHovered ? '#1A5C3E' : '#2D8A5F') : '#D8D5CE',
             color: 'white', border: 'none', borderRadius: '10px',
             padding: '14px 24px', fontSize: '16px', fontWeight: 500,
@@ -133,15 +144,20 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
             transition: 'all 0.15s ease',
           }}
         >
-          {isSubmitting ? 'AIコメントを生成中...' : '記録する'}
+          {isSubmitting
+            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> Coa がコメントを書いています…</>
+            : '記録する'
+          }
         </button>
 
         {!isValid && (
           <p style={{ textAlign: 'center', fontSize: '12px', color: '#A09B92', marginTop: '10px' }}>
-            気分スコアと感情タグを選択してください
+            気分と感情タグを選択してください
           </p>
         )}
       </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
