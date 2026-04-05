@@ -3,9 +3,8 @@ import { redirect } from 'next/navigation';
 import { getTodayHCM } from '@/lib/timing';
 import TopNav from '@/components/ui/TopNav';
 import {
-  Wind, ArrowDown,
-  Sun, Moon, Target, BarChart3,
-  CircleCheck, CircleX,
+  Wind, Sun, Moon, CircleCheck, CircleX,
+  ArrowRight, Sparkles, TrendingUp, Target,
 } from 'lucide-react';
 
 export default async function ConceptPage() {
@@ -28,7 +27,7 @@ export default async function ConceptPage() {
     background: 'var(--bg-card)',
     border: '0.5px solid var(--border-color)',
     borderRadius: '14px',
-    padding: '28px 28px',
+    padding: '28px',
     boxShadow: 'var(--shadow-card)',
   };
 
@@ -47,14 +46,17 @@ export default async function ConceptPage() {
     lineHeight: 1.85,
   };
 
-  const userStory = [
-    { icon: <Sun size={16} strokeWidth={2} color="var(--text-amber)" />, text: '朝の瞑想前にチェックイン（気分・感情を記録）', color: 'var(--bg-amber)', border: 'var(--border-amber)' },
-    { icon: <span style={{ fontSize: '14px' }}>✨</span>, text: 'Coaがスコアと短いコメントを即時返す', color: 'var(--bg-green)', border: 'var(--border-green)' },
-    { icon: <Wind size={16} strokeWidth={2} color="#2980B9" />, text: '瞑想に進む（ログが自動記録される）', color: 'var(--bg-blue)', border: 'var(--border-blue)' },
-    { icon: <Moon size={16} strokeWidth={2} color="var(--text-muted)" />, text: '夜の瞑想前に再度チェックイン', color: 'var(--bg-muted)', border: 'var(--border-muted)' },
-    { icon: <BarChart3 size={16} strokeWidth={2} color="var(--text-green)" />, text: '1日のスコアが確定・グラフに反映', color: 'var(--bg-green)', border: 'var(--border-green)' },
-    { icon: <span style={{ fontSize: '14px' }}>🔁</span>, text: '毎週日曜日にCoaが週次インサイトを生成', color: 'var(--bg-amber)', border: 'var(--border-amber)' },
-    { icon: <Target size={16} strokeWidth={2} color="var(--text-green)" />, text: 'パターンへの気づきが行動変化につながる', color: 'var(--bg-green)', border: 'var(--border-green)' },
+  // ユーザーストーリーモデル
+  const dailySteps = [
+    { icon: <Sun size={18} strokeWidth={1.8} color="var(--text-amber)" />, label: 'チェックイン', sub: '朝・夜、気分と感情を記録', bg: 'var(--bg-amber)', border: 'var(--border-amber)' },
+    { icon: <Sparkles size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Coa フィードバック', sub: 'スコアと短いコメントを即時返す', bg: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <Wind size={18} strokeWidth={1.8} color="#2980B9" />, label: '瞑想', sub: 'ログが自動記録される', bg: 'var(--bg-blue)', border: 'var(--border-blue)' },
+  ];
+
+  const weeklySteps = [
+    { icon: <TrendingUp size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Coa インサイト', sub: '週次データを自動分析', bg: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <Sparkles size={18} strokeWidth={1.8} color="var(--text-amber)" />, label: 'パターン認識', sub: '傾向と気づきが可視化される', bg: 'var(--bg-amber)', border: 'var(--border-amber)' },
+    { icon: <Target size={18} strokeWidth={1.8} color="var(--text-green)" />, label: '行動変化', sub: '気づきが習慣の改善につながる', bg: 'var(--bg-green)', border: 'var(--border-green)' },
   ];
 
   return (
@@ -73,18 +75,16 @@ export default async function ConceptPage() {
           <div style={{ marginBottom: '36px' }}>
             <p style={sectionLabel}>コアバリュー</p>
             <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>
-              良いコンディションの安定を、AIと一緒に作る。
+              安定して良いコンディションになる
             </p>
           </div>
 
           {/* 背景・課題 */}
-          <div style={{ marginBottom: '36px' }}>
+          <div>
             <p style={sectionLabel}>背景・課題</p>
             <p style={{ ...body, marginBottom: '20px' }}>
-              義務感で動き続けると、じわじわとエネルギーが削られていく。
-              コンディションが不安定になると、学習・仕事・人間関係、
-              あらゆる領域のパフォーマンスが落ちる。
-              逆に、調子が良い日は同じことをしても全てがうまく回る。
+              コンディションが良い時、学習・仕事・人間関係、あらゆることがうまく回る。
+              コンディションが落ちると、同じことをしても結果が出ない。
             </p>
             <div style={{
               padding: '16px 20px',
@@ -92,19 +92,9 @@ export default async function ConceptPage() {
               borderLeft: '3px solid var(--accent-green)',
             }}>
               <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: 'var(--text-green-dark)', lineHeight: 1.6 }}>
-                コンディションを安定させることが、生活全体を底上げする<br />
-                最も効果的なアプローチである。
+                コンディションを安定させることが、生活全体への最も効果的なアプローチである。
               </p>
             </div>
-          </div>
-
-          {/* プロダクトの定義 */}
-          <div>
-            <p style={sectionLabel}>プロダクトの定義</p>
-            <p style={{ ...body, margin: 0 }}>
-              毎日の気分・感情をチェックインで記録し、AIがパターンを
-              分析してインサイトを返す。瞑想との連携で習慣化を促す。
-            </p>
           </div>
         </section>
 
@@ -117,7 +107,7 @@ export default async function ConceptPage() {
                 <CircleCheck size={18} strokeWidth={2} color="var(--accent-green)" />
                 <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-green-dark)' }}>解くこと</span>
               </div>
-              <p style={{ ...body, fontSize: '14px' }}>
+              <p style={{ ...body, fontSize: '14px', margin: 0 }}>
                 日常のコンディションの波を観察・認識し、良い状態を安定させること。
               </p>
             </div>
@@ -146,35 +136,60 @@ export default async function ConceptPage() {
         {/* ユーザーストーリー */}
         <section style={{ marginBottom: '48px' }}>
           <p style={sectionLabel}>ユーザーストーリー</p>
-          <div style={{ ...card }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-              {userStory.map((step, i) => (
-                <div key={i}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '14px',
-                    padding: '14px 16px', borderRadius: '10px',
-                    background: step.color, border: `0.5px solid ${step.border}`,
-                  }}>
-                    <div style={{
-                      width: '32px', height: '32px', borderRadius: '50%',
-                      background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0, fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)',
-                      boxShadow: 'var(--shadow-sm)',
+          <div style={{ ...card, padding: '24px' }}>
+            {/* 毎日 */}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-placeholder)', letterSpacing: '0.06em', marginBottom: '12px', textTransform: 'uppercase' }}>
+                毎日
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', alignItems: 'center', gap: '8px' }}>
+                {dailySteps.map((step, i) => (
+                  <>
+                    <div key={step.label} style={{
+                      background: step.bg, border: `0.5px solid ${step.border}`,
+                      borderRadius: '10px', padding: '14px 16px',
                     }}>
-                      {i + 1}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        {step.icon}
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>{step.label}</span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{step.sub}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                      {step.icon}
-                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{step.text}</span>
+                    {i < dailySteps.length - 1 && (
+                      <ArrowRight key={`arrow-d-${i}`} size={14} strokeWidth={2} color="var(--border-muted)" />
+                    )}
+                  </>
+                ))}
+              </div>
+            </div>
+
+            {/* 区切り */}
+            <div style={{ borderTop: '0.5px solid var(--border-color)', marginBottom: '20px' }} />
+
+            {/* 毎週 */}
+            <div>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-placeholder)', letterSpacing: '0.06em', marginBottom: '12px', textTransform: 'uppercase' }}>
+                毎週（日曜日）
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', alignItems: 'center', gap: '8px' }}>
+                {weeklySteps.map((step, i) => (
+                  <>
+                    <div key={step.label} style={{
+                      background: step.bg, border: `0.5px solid ${step.border}`,
+                      borderRadius: '10px', padding: '14px 16px',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        {step.icon}
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>{step.label}</span>
+                      </div>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>{step.sub}</p>
                     </div>
-                  </div>
-                  {i < userStory.length - 1 && (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0' }}>
-                      <ArrowDown size={14} strokeWidth={2} color="var(--border-muted)" />
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {i < weeklySteps.length - 1 && (
+                      <ArrowRight key={`arrow-w-${i}`} size={14} strokeWidth={2} color="var(--border-muted)" />
+                    )}
+                  </>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -182,41 +197,67 @@ export default async function ConceptPage() {
         {/* 指標 */}
         <section>
           <p style={sectionLabel}>指標</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div style={card}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                行動指標
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {[
-                  { label: 'チェックイン入力率（朝・夜）', freq: '日単位', Icon: Sun },
-                  { label: '瞑想実施回数', freq: '週単位', Icon: Wind },
-                ].map(({ label, freq, Icon }) => (
-                  <div key={label} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 14px', background: 'var(--bg-subtle)', borderRadius: '10px',
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon size={14} strokeWidth={2} color="var(--text-green)" />
-                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{label}</span>
-                    </div>
-                    <span style={{
-                      fontSize: '12px', color: 'var(--text-green)', fontWeight: 500,
-                      background: 'var(--bg-green)', padding: '3px 8px', borderRadius: '9999px',
-                    }}>{freq}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div style={card}>
+            {/* 行動指標 → 結果指標 フロー */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: '20px' }}>
 
-            <div style={{ ...card, borderLeft: '3px solid var(--accent-green)' }}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                結果指標
+              {/* 行動指標 */}
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-placeholder)', marginBottom: '14px', letterSpacing: '0.04em' }}>
+                  行動指標（INPUT）
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[
+                    { label: 'チェックイン入力率', sub: '朝・夜', freq: '日単位', Icon: Sun },
+                    { label: '瞑想実施回数', sub: '', freq: '週単位', Icon: Wind },
+                  ].map(({ label, sub, freq, Icon }) => (
+                    <div key={label} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '11px 14px', background: 'var(--bg-subtle)', borderRadius: '10px',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Icon size={14} strokeWidth={2} color="var(--text-green)" />
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)' }}>{label}</div>
+                          {sub && <div style={{ fontSize: '11px', color: 'var(--text-placeholder)' }}>{sub}</div>}
+                        </div>
+                      </div>
+                      <span style={{
+                        fontSize: '11px', color: 'var(--text-green)', fontWeight: 500,
+                        background: 'var(--bg-green)', padding: '2px 8px', borderRadius: '9999px',
+                      }}>{freq}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.75, margin: 0 }}>
-                コンディションスコアの週次平均値が、以前より
-                <strong style={{ color: 'var(--text-green-dark)' }}> 安定して高くなること。</strong>
-              </p>
+
+              {/* 矢印 */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <ArrowRight size={18} strokeWidth={1.8} color="var(--border-muted)" />
+                <div style={{ fontSize: '10px', color: 'var(--text-placeholder)', textAlign: 'center', lineHeight: 1.4, maxWidth: '48px' }}>
+                  継続で
+                </div>
+              </div>
+
+              {/* 結果指標 */}
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-placeholder)', marginBottom: '14px', letterSpacing: '0.04em' }}>
+                  結果指標（OUTPUT）
+                </div>
+                <div style={{
+                  padding: '18px 20px',
+                  background: 'var(--bg-green)', borderRadius: '10px',
+                  border: '0.5px solid var(--border-green)',
+                }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-green-dark)', marginBottom: '6px' }}>
+                    週次スコア平均の安定・向上
+                  </div>
+                  <p style={{ fontSize: '12px', color: 'var(--text-green)', margin: 0, lineHeight: 1.6 }}>
+                    コンディションスコアの週次平均値が<br />継続的に高く安定していること
+                  </p>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
