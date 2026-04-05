@@ -24,57 +24,55 @@ export default async function ConceptPage() {
   const morningDone = (todayCheckins || []).some(c => c.timing === 'morning');
   const eveningDone = (todayCheckins || []).some(c => c.timing === 'evening');
 
-  // ---- スタイル定数 ----
-  const card = {
-    background: '#FFFFFF',
+  const card: React.CSSProperties = {
+    background: 'var(--bg-card)',
     border: '0.5px solid var(--border-color)',
     borderRadius: '14px',
     padding: '28px 28px',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-  } as const;
+    boxShadow: 'var(--shadow-card)',
+  };
 
-  const sectionLabel = {
+  const sectionLabel: React.CSSProperties = {
     fontSize: '12px',
     fontWeight: 600,
-    color: '#2D8A5F',
-    textTransform: 'uppercase' as const,
+    color: 'var(--text-green)',
+    textTransform: 'uppercase',
     letterSpacing: '0.08em',
     marginBottom: '12px',
   };
 
-  const body = {
+  const body: React.CSSProperties = {
     fontSize: '16px',
-    color: '#2E2B28',
+    color: 'var(--text-secondary)',
     lineHeight: 1.85,
   };
 
-
   const userStory = [
-    { icon: <Sun size={16} strokeWidth={2} color="#C07818" />, text: '朝の瞑想前にチェックイン（気分・感情を記録）', color: '#FDF3E3', border: '#FAE0B0' },
-    { icon: <span style={{ fontSize: '14px' }}>✨</span>, text: 'Coaがスコアと短いコメントを即時返す', color: '#E8F5EF', border: '#9AD4B3' },
-    { icon: <Wind size={16} strokeWidth={2} color="#2980B9" />, text: '瞑想に進む（ログが自動記録される）', color: '#EAF4FB', border: '#AED6F1' },
-    { icon: <Moon size={16} strokeWidth={2} color="#6B6660" />, text: '夜の瞑想前に再度チェックイン', color: '#EEECE8', border: '#D8D5CE' },
-    { icon: <BarChart3 size={16} strokeWidth={2} color="#2D8A5F" />, text: '1日のスコアが確定・グラフに反映', color: '#E8F5EF', border: '#9AD4B3' },
-    { icon: <span style={{ fontSize: '14px' }}>🔁</span>, text: '毎週日曜日にCoaが週次インサイトを生成', color: '#FDF3E3', border: '#FAE0B0' },
-    { icon: <Target size={16} strokeWidth={2} color="#2D8A5F" />, text: 'パターンへの気づきが行動変化につながる', color: '#E8F5EF', border: '#9AD4B3' },
+    { icon: <Sun size={16} strokeWidth={2} color="var(--text-amber)" />, text: '朝の瞑想前にチェックイン（気分・感情を記録）', color: 'var(--bg-amber)', border: 'var(--border-amber)' },
+    { icon: <span style={{ fontSize: '14px' }}>✨</span>, text: 'Coaがスコアと短いコメントを即時返す', color: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <Wind size={16} strokeWidth={2} color="#2980B9" />, text: '瞑想に進む（ログが自動記録される）', color: 'var(--bg-blue)', border: 'var(--border-blue)' },
+    { icon: <Moon size={16} strokeWidth={2} color="var(--text-muted)" />, text: '夜の瞑想前に再度チェックイン', color: 'var(--bg-muted)', border: 'var(--border-muted)' },
+    { icon: <BarChart3 size={16} strokeWidth={2} color="var(--text-green)" />, text: '1日のスコアが確定・グラフに反映', color: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <span style={{ fontSize: '14px' }}>🔁</span>, text: '毎週日曜日にCoaが週次インサイトを生成', color: 'var(--bg-amber)', border: 'var(--border-amber)' },
+    { icon: <Target size={16} strokeWidth={2} color="var(--text-green)" />, text: 'パターンへの気づきが行動変化につながる', color: 'var(--bg-green)', border: 'var(--border-green)' },
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F6F2' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <TopNav morningDone={morningDone} eveningDone={eveningDone} profile={profile} userId={user.id} />
 
       <main style={{ maxWidth: '820px', margin: '0 auto', padding: '52px 40px 80px' }}>
 
         {/* ドキュメントヘッダー */}
         <section style={{ marginBottom: '56px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1A1815', marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '40px' }}>
             CareGo
           </h1>
 
           {/* コアバリュー */}
           <div style={{ marginBottom: '36px' }}>
             <p style={sectionLabel}>コアバリュー</p>
-            <p style={{ fontSize: '18px', fontWeight: 600, color: '#1A1815', lineHeight: 1.5, margin: 0 }}>
+            <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>
               良いコンディションの安定を、AIと一緒に作る。
             </p>
           </div>
@@ -90,10 +88,10 @@ export default async function ConceptPage() {
             </p>
             <div style={{
               padding: '16px 20px',
-              background: '#E8F5EF', borderRadius: '10px',
-              borderLeft: '3px solid #2D8A5F',
+              background: 'var(--bg-green)', borderRadius: '10px',
+              borderLeft: '3px solid var(--accent-green)',
             }}>
-              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#1A5C3E', lineHeight: 1.6 }}>
+              <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: 'var(--text-green-dark)', lineHeight: 1.6 }}>
                 コンディションを安定させることが、生活全体を底上げする<br />
                 最も効果的なアプローチである。
               </p>
@@ -114,23 +112,21 @@ export default async function ConceptPage() {
         <section style={{ marginBottom: '48px' }}>
           <p style={sectionLabel}>プロダクトスコープ</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            {/* 解くこと */}
-            <div style={{ ...card, borderTop: '3px solid #2D8A5F' }}>
+            <div style={{ ...card, borderTop: '3px solid var(--accent-green)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <CircleCheck size={18} strokeWidth={2} color="#2D8A5F" />
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#1A5C3E' }}>解くこと</span>
+                <CircleCheck size={18} strokeWidth={2} color="var(--accent-green)" />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-green-dark)' }}>解くこと</span>
               </div>
-              <p style={{ ...body, fontSize: '14px', color: '#2E2B28' }}>
+              <p style={{ ...body, fontSize: '14px' }}>
                 日常のコンディションの波を観察・認識し、良い状態を安定させること。
               </p>
             </div>
-            {/* 解かないこと */}
-            <div style={{ ...card, borderTop: '3px solid #D8D5CE' }}>
+            <div style={{ ...card, borderTop: '3px solid var(--border-muted)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <CircleX size={18} strokeWidth={2} color="#A09B92" />
-                <span style={{ fontSize: '15px', fontWeight: 600, color: '#6B6660' }}>解かないこと</span>
+                <CircleX size={18} strokeWidth={2} color="var(--text-placeholder)" />
+                <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-muted)' }}>解かないこと</span>
               </div>
-              <ul style={{ ...body, fontSize: '14px', color: '#6B6660', listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <ul style={{ ...body, fontSize: '14px', color: 'var(--text-muted)', listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {[
                   '臨床的なメンタルヘルス疾患の治療・診断',
                   'カウンセリングや医療の代替',
@@ -138,7 +134,7 @@ export default async function ConceptPage() {
                   'やりたいことをやりたいに変えること',
                 ].map(t => (
                   <li key={t} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                    <span style={{ marginTop: '4px', flexShrink: 0, color: '#D8D5CE' }}>—</span>
+                    <span style={{ marginTop: '4px', flexShrink: 0, color: 'var(--border-muted)' }}>—</span>
                     {t}
                   </li>
                 ))}
@@ -161,20 +157,20 @@ export default async function ConceptPage() {
                   }}>
                     <div style={{
                       width: '32px', height: '32px', borderRadius: '50%',
-                      background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0, fontSize: '12px', fontWeight: 600, color: '#6B6660',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      background: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0, fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)',
+                      boxShadow: 'var(--shadow-sm)',
                     }}>
                       {i + 1}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                       {step.icon}
-                      <span style={{ fontSize: '14px', color: '#2E2B28', lineHeight: 1.5 }}>{step.text}</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{step.text}</span>
                     </div>
                   </div>
                   {i < userStory.length - 1 && (
                     <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0' }}>
-                      <ArrowDown size={14} strokeWidth={2} color="#D8D5CE" />
+                      <ArrowDown size={14} strokeWidth={2} color="var(--border-muted)" />
                     </div>
                   )}
                 </div>
@@ -187,9 +183,8 @@ export default async function ConceptPage() {
         <section>
           <p style={sectionLabel}>指標</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            {/* 行動指標 */}
             <div style={card}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: '#2E2B28', marginBottom: '16px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 行動指標
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -199,29 +194,28 @@ export default async function ConceptPage() {
                 ].map(({ label, freq, Icon }) => (
                   <div key={label} style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 14px', background: '#F8F6F2', borderRadius: '10px',
+                    padding: '12px 14px', background: 'var(--bg-subtle)', borderRadius: '10px',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon size={14} strokeWidth={2} color="#2D8A5F" />
-                      <span style={{ fontSize: '14px', color: '#2E2B28' }}>{label}</span>
+                      <Icon size={14} strokeWidth={2} color="var(--text-green)" />
+                      <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{label}</span>
                     </div>
                     <span style={{
-                      fontSize: '12px', color: '#2D8A5F', fontWeight: 500,
-                      background: '#E8F5EF', padding: '3px 8px', borderRadius: '9999px',
+                      fontSize: '12px', color: 'var(--text-green)', fontWeight: 500,
+                      background: 'var(--bg-green)', padding: '3px 8px', borderRadius: '9999px',
                     }}>{freq}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 結果指標 */}
-            <div style={{ ...card, borderLeft: '3px solid #2D8A5F' }}>
-              <div style={{ fontSize: '14px', fontWeight: 600, color: '#2E2B28', marginBottom: '16px' }}>
+            <div style={{ ...card, borderLeft: '3px solid var(--accent-green)' }}>
+              <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '16px' }}>
                 結果指標
               </div>
-              <p style={{ fontSize: '15px', color: '#2E2B28', lineHeight: 1.75, margin: 0 }}>
+              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.75, margin: 0 }}>
                 コンディションスコアの週次平均値が、以前より
-                <strong style={{ color: '#1A5C3E' }}> 安定して高くなること。</strong>
+                <strong style={{ color: 'var(--text-green-dark)' }}> 安定して高くなること。</strong>
               </p>
             </div>
           </div>

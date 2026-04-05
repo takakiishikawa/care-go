@@ -54,28 +54,28 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   return (
     <div>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: 600, color: '#1A1815', marginBottom: '8px', lineHeight: 1.3 }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px', lineHeight: 1.3 }}>
           {greeting}
         </h1>
-        <p style={{ fontSize: '14px', color: '#A09B92' }}>
+        <p style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>
           {timing === 'morning' ? '☀️ 朝のチェックイン' : '🌙 夜のチェックイン'}
         </p>
       </div>
 
       <div style={{
-        background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+        background: 'var(--bg-card)', border: '0.5px solid var(--border-color)',
         borderRadius: '14px', padding: '32px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        boxShadow: 'var(--shadow-card)',
       }}>
         {/* 気分スコア */}
         <section style={{ marginBottom: '28px' }}>
           <label style={{
             display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
           }}>
-            <Smile size={16} strokeWidth={2} color="#2D8A5F" />
+            <Smile size={16} strokeWidth={2} color="var(--accent-green)" />
             今の気分
-            <span style={{ color: '#C0392B', fontWeight: 400 }}>*</span>
+            <span style={{ color: 'var(--text-error)', fontWeight: 400 }}>*</span>
           </label>
           <MoodSelector value={moodScore} onChange={setMoodScore} />
         </section>
@@ -84,12 +84,12 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         <section style={{ marginBottom: '28px' }}>
           <label style={{
             display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
           }}>
-            <Tag size={15} strokeWidth={2} color="#2D8A5F" />
+            <Tag size={15} strokeWidth={2} color="var(--accent-green)" />
             感情タグ
-            <span style={{ color: '#C0392B', fontWeight: 400 }}>*</span>
-            <span style={{ fontWeight: 400, color: '#A09B92', fontSize: '13px' }}>複数選択可</span>
+            <span style={{ color: 'var(--text-error)', fontWeight: 400 }}>*</span>
+            <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>複数選択可</span>
           </label>
           <EmotionTags selected={emotionTags} onChange={setEmotionTags} />
         </section>
@@ -98,11 +98,11 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         <section style={{ marginBottom: '32px' }}>
           <label style={{
             display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '14px',
+            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
           }}>
-            <NotebookPen size={15} strokeWidth={2} color="#2D8A5F" />
+            <NotebookPen size={15} strokeWidth={2} color="var(--accent-green)" />
             メモ
-            <span style={{ fontWeight: 400, color: '#A09B92', fontSize: '13px' }}>任意</span>
+            <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>任意</span>
           </label>
           <textarea
             value={freeText}
@@ -112,17 +112,17 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
             style={{
               width: '100%', border: '0.5px solid var(--border-color)',
               borderRadius: '10px', padding: '12px 14px',
-              fontSize: '16px', color: '#2E2B28', background: '#FFFFFF',
+              fontSize: '16px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
               resize: 'none', outline: 'none', fontFamily: 'inherit',
               lineHeight: 1.6, boxSizing: 'border-box', transition: 'all 0.15s ease',
             }}
-            onFocus={e => { e.target.style.borderColor = '#4DAF80'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
+            onFocus={e => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
             onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
           />
         </section>
 
         {error && (
-          <div style={{ color: '#C0392B', fontSize: '14px', marginBottom: '16px', background: '#FDF3E3', padding: '10px 14px', borderRadius: '8px' }}>
+          <div style={{ color: 'var(--text-error)', fontSize: '14px', marginBottom: '16px', background: 'var(--bg-amber)', padding: '10px 14px', borderRadius: '8px' }}>
             {error}
           </div>
         )}
@@ -136,7 +136,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           onMouseUp={() => setBtnPressed(false)}
           style={{
             width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            background: isValid ? (btnHovered ? '#1A5C3E' : '#2D8A5F') : '#D8D5CE',
+            background: isValid ? (btnHovered ? 'var(--accent-green-hover)' : 'var(--accent-green)') : 'var(--border-muted)',
             color: 'white', border: 'none', borderRadius: '10px',
             padding: '14px 24px', fontSize: '16px', fontWeight: 500,
             cursor: isValid && !isSubmitting ? 'pointer' : 'not-allowed',
@@ -151,7 +151,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         </button>
 
         {!isValid && (
-          <p style={{ textAlign: 'center', fontSize: '12px', color: '#A09B92', marginTop: '10px' }}>
+          <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-placeholder)', marginTop: '10px' }}>
             気分と感情タグを選択してください
           </p>
         )}

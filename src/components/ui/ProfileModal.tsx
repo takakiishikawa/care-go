@@ -25,25 +25,15 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setIsUploading(true);
     setError(null);
-
     try {
       const supabase = createClient();
       const ext = file.name.split('.').pop() ?? 'jpg';
       const filePath = `${userId}/avatar.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file, { upsert: true });
-
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
       setAvatarUrl(publicUrl);
       setPreviewUrl(publicUrl);
     } catch (err: unknown) {
@@ -57,8 +47,6 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
     setIsSaving(true);
     setError(null);
     try {
-      // API Route 経由でサーバーサイド upsert
-      // → server で service_role key を使い RLS をバイパス（安全）
       const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -66,7 +54,6 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '保存に失敗しました');
-
       router.refresh();
       onClose();
     } catch (err: unknown) {
@@ -83,7 +70,7 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
       onClick={onClose}
       style={{
         position: 'fixed', inset: 0, zIndex: 50,
-        background: 'rgba(26, 24, 21, 0.4)',
+        background: 'var(--overlay)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '32px',
       }}
@@ -91,19 +78,20 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: '#FFFFFF',
+          background: 'var(--bg-card)',
           borderRadius: '20px',
           padding: '36px',
           width: '100%',
           maxWidth: '400px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+          boxShadow: 'var(--shadow-modal)',
+          border: '0.5px solid var(--border-color)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1815', margin: 0 }}>プロフィール編集</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>プロフィール編集</h2>
           <button
             onClick={onClose}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A09B92', fontSize: '20px', lineHeight: 1, padding: '4px' }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-placeholder)', fontSize: '20px', lineHeight: 1, padding: '4px' }}
           >
             ×
           </button>
@@ -116,17 +104,17 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
             disabled={isUploading}
             style={{
               position: 'relative', width: '80px', height: '80px', borderRadius: '50%',
-              overflow: 'hidden', cursor: 'pointer', border: '2px solid #9AD4B3',
-              background: '#E8F5EF', padding: 0,
+              overflow: 'hidden', cursor: 'pointer', border: '2px solid var(--border-green)',
+              background: 'var(--bg-green)', padding: 0,
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2D8A5F'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#9AD4B3'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-green)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-green)'; }}
           >
             {previewUrl ? (
               <img src={previewUrl} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <span style={{ fontSize: '28px', fontWeight: 600, color: '#2D8A5F' }}>{initials}</span>
+              <span style={{ fontSize: '28px', fontWeight: 600, color: 'var(--text-green)' }}>{initials}</span>
             )}
             <div style={{
               position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)',
@@ -140,14 +128,14 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
             </div>
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-          <p style={{ fontSize: '12px', color: '#A09B92', marginTop: '10px' }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-placeholder)', marginTop: '10px' }}>
             {isUploading ? 'アップロード中...' : 'クリックして画像を変更'}
           </p>
         </div>
 
         {/* 名前 */}
         <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#2E2B28', marginBottom: '8px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>
             表示名
           </label>
           <input
@@ -157,16 +145,16 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
             style={{
               width: '100%', border: '0.5px solid var(--border-color)',
               borderRadius: '10px', padding: '11px 14px',
-              fontSize: '16px', color: '#2E2B28', background: '#FFFFFF',
+              fontSize: '16px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
               outline: 'none', transition: 'all 0.15s ease',
             }}
-            onFocus={e => { e.target.style.borderColor = '#4DAF80'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
+            onFocus={e => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
             onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
           />
         </div>
 
         {error && (
-          <div style={{ color: '#C0392B', fontSize: '14px', marginBottom: '16px', background: '#FDF3E3', padding: '10px 14px', borderRadius: '8px' }}>
+          <div style={{ color: 'var(--text-error)', fontSize: '14px', marginBottom: '16px', background: 'var(--bg-amber)', padding: '10px 14px', borderRadius: '8px' }}>
             {error}
           </div>
         )}
@@ -175,15 +163,15 @@ export default function ProfileModal({ profile, userId, onClose }: ProfileModalP
           onClick={handleSave}
           disabled={isSaving || isUploading}
           style={{
-            width: '100%', background: '#2D8A5F', color: 'white',
+            width: '100%', background: 'var(--accent-green)', color: 'white',
             border: 'none', borderRadius: '10px', padding: '13px',
             fontSize: '16px', fontWeight: 500,
             cursor: (isSaving || isUploading) ? 'not-allowed' : 'pointer',
             opacity: (isSaving || isUploading) ? 0.7 : 1,
             transition: 'all 0.15s ease',
           }}
-          onMouseEnter={e => { if (!isSaving && !isUploading) (e.currentTarget as HTMLElement).style.background = '#1A5C3E'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2D8A5F'; }}
+          onMouseEnter={e => { if (!isSaving && !isUploading) (e.currentTarget as HTMLElement).style.background = 'var(--accent-green-hover)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green)'; }}
           onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)'; }}
           onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
         >

@@ -14,7 +14,7 @@ export default function CheckinCTABanner({ greeting, ctaLabel, timing }: Checkin
 
   return (
     <div style={{
-      background: '#2D8A5F', borderRadius: '14px', padding: '20px 24px', marginBottom: '24px',
+      background: 'var(--accent-green)', borderRadius: '14px', padding: '20px 24px', marginBottom: '24px',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     }}>
       <div>
@@ -24,13 +24,13 @@ export default function CheckinCTABanner({ greeting, ctaLabel, timing }: Checkin
         </div>
       </div>
       <Link href="/checkin" style={{
-        background: 'white', color: '#2D8A5F', borderRadius: '10px',
+        background: 'var(--bg-card)', color: 'var(--accent-green)', borderRadius: '10px',
         padding: '10px 20px', fontSize: '14px', fontWeight: 600,
         textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s ease',
         display: 'inline-flex', alignItems: 'center', gap: '6px',
       }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E8F5EF'; }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-green)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)'; }}
       >
         <PenLine size={14} strokeWidth={2} />
         チェックイン →

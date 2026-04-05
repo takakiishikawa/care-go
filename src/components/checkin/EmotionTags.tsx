@@ -27,9 +27,11 @@ function TagButton({ label, selected, onClick }: { label: string; selected: bool
       onMouseUp={() => setPressed(false)}
       style={{
         padding: '6px 16px', borderRadius: '9999px',
-        border: selected ? '1.5px solid #2D8A5F' : `0.5px solid ${hovered ? 'rgba(46,43,40,0.25)' : 'var(--border-color)'}`,
-        background: selected ? '#E8F5EF' : hovered ? '#F8F6F2' : '#FFFFFF',
-        color: selected ? '#1A5C3E' : hovered ? '#2E2B28' : '#6B6660',
+        border: selected
+          ? '1.5px solid var(--accent-green)'
+          : `0.5px solid ${hovered ? 'var(--border-color-hover)' : 'var(--border-color)'}`,
+        background: selected ? 'var(--bg-green)' : hovered ? 'var(--bg-subtle)' : 'var(--bg-card)',
+        color: selected ? 'var(--text-green-dark)' : hovered ? 'var(--text-secondary)' : 'var(--text-muted)',
         fontSize: '14px', fontWeight: selected ? 500 : 400,
         cursor: 'pointer',
         transform: pressed ? 'scale(0.97)' : 'scale(1)',

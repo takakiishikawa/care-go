@@ -25,7 +25,6 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
   const today = new Date().toISOString().split('T')[0];
   const baseline = PAD.top + CHART_H;
 
-  // All points (treat 0 as valid — still on chart at baseline)
   const points = data.map((d, i) => ({
     x: xPos(i, data.length),
     y: yPos(d.count),
@@ -46,8 +45,8 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
         <defs>
           <linearGradient id="meditationGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#C07818" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#C07818" stopOpacity="0" />
+            <stop offset="0%" style={{ stopColor: 'var(--accent-amber)', stopOpacity: 0.18 }} />
+            <stop offset="100%" style={{ stopColor: 'var(--accent-amber)', stopOpacity: 0 }} />
           </linearGradient>
         </defs>
 
@@ -55,9 +54,9 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
         <path d={areaPath} fill="url(#meditationGradient)" />
 
         {/* ライン */}
-        <path d={linePath} fill="none" stroke="#C07818" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={linePath} fill="none" style={{ stroke: 'var(--accent-amber)' }} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* ドット（瞑想あった日のみ強調） */}
+        {/* ドット */}
         {points.map(p => {
           const isToday = p.date === today;
           const hasData = p.count > 0;
@@ -66,8 +65,10 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
               key={p.date}
               cx={p.x} cy={p.y}
               r={isToday ? 5 : 3.5}
-              fill={hasData ? (isToday ? '#C07818' : '#FFFFFF') : '#EEECE8'}
-              stroke={hasData ? '#C07818' : '#D8D5CE'}
+              style={{
+                fill: hasData ? (isToday ? 'var(--accent-amber)' : 'var(--bg-card)') : 'var(--bg-muted)',
+                stroke: hasData ? 'var(--accent-amber)' : 'var(--border-muted)',
+              }}
               strokeWidth={isToday && hasData ? 0 : 2}
             />
           );
@@ -85,7 +86,7 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
               x={x} y={H - 4}
               textAnchor="middle"
               fontSize="11"
-              fill={isToday ? '#C07818' : '#A09B92'}
+              style={{ fill: isToday ? 'var(--accent-amber)' : 'var(--text-placeholder)' }}
               fontWeight={isToday ? '600' : '400'}
               fontFamily="DM Sans, system-ui, sans-serif"
             >

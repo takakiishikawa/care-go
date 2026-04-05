@@ -14,16 +14,10 @@ export default async function CheckinPage() {
   const today = getTodayHCM();
 
   const [{ data: todayCheckins }, { data: profile }] = await Promise.all([
-    supabase
-      .from('checkins')
-      .select('timing')
+    supabase.from('checkins').select('timing')
       .gte('checked_at', today + 'T00:00:00Z')
       .lte('checked_at', today + 'T23:59:59Z'),
-    supabase
-      .from('profiles')
-      .select('display_name, avatar_url')
-      .eq('id', user.id)
-      .single(),
+    supabase.from('profiles').select('display_name, avatar_url').eq('id', user.id).single(),
   ]);
 
   const morningDone = (todayCheckins || []).some(c => c.timing === 'morning');
@@ -32,38 +26,33 @@ export default async function CheckinPage() {
   const alreadyDone = timing === 'morning' ? morningDone : eveningDone;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8F6F2' }}>
-      <TopNav
-        morningDone={morningDone}
-        eveningDone={eveningDone}
-        profile={profile}
-        userId={user.id}
-      />
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
+      <TopNav morningDone={morningDone} eveningDone={eveningDone} profile={profile} userId={user.id} />
 
       <main style={{ maxWidth: '680px', margin: '0 auto', padding: '48px 40px' }}>
         {alreadyDone ? (
           <div style={{
-            background: '#FFFFFF', border: '0.5px solid var(--border-color)',
+            background: 'var(--bg-card)', border: '0.5px solid var(--border-color)',
             borderRadius: '14px', padding: '48px 32px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)', textAlign: 'center',
+            boxShadow: 'var(--shadow-card)', textAlign: 'center',
           }}>
             <div style={{
-              width: '60px', height: '60px', background: '#E8F5EF', borderRadius: '50%',
+              width: '60px', height: '60px', background: 'var(--bg-green)', borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
             }}>
-              <CheckCircle size={28} strokeWidth={1.8} color="#2D8A5F" />
+              <CheckCircle size={28} strokeWidth={1.8} color="var(--accent-green)" />
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A5C3E', marginBottom: '12px' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-green-dark)', marginBottom: '12px' }}>
               {timing === 'morning' ? '朝のチェックイン' : '夜のチェックイン'}は完了済みです
             </h2>
-            <p style={{ fontSize: '14px', color: '#6B6660', lineHeight: 1.7 }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
               {timing === 'morning' && !eveningDone
                 ? '夜のチェックインは夜以降にできます。'
                 : '今日のチェックインは完了しています。お疲れさまでした。'}
             </p>
             <Link href="/dashboard" style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '24px',
-              background: '#2D8A5F', color: 'white', borderRadius: '10px',
+              background: 'var(--accent-green)', color: 'white', borderRadius: '10px',
               padding: '11px 24px', fontSize: '16px', fontWeight: 500, textDecoration: 'none',
             }}>
               <LayoutDashboard size={15} strokeWidth={2} />

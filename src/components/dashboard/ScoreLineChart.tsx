@@ -24,7 +24,6 @@ function yPos(value: number): number {
 export default function ScoreLineChart({ data }: ScoreLineChartProps) {
   const today = new Date().toISOString().split('T')[0];
 
-  // Build point groups (split at null values)
   type Pt = { x: number; y: number };
   const groups: Pt[][] = [];
   let cur: Pt[] = [];
@@ -46,15 +45,15 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', overflow: 'visible' }}>
         <defs>
           <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2D8A5F" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#2D8A5F" stopOpacity="0" />
+            <stop offset="0%" style={{ stopColor: 'var(--accent-green)', stopOpacity: 0.18 }} />
+            <stop offset="100%" style={{ stopColor: 'var(--accent-green)', stopOpacity: 0 }} />
           </linearGradient>
         </defs>
 
         {/* グリッドライン（50点） */}
         <line
           x1={PAD.left} y1={yPos(50)} x2={W - PAD.right} y2={yPos(50)}
-          stroke="#EEECE8" strokeWidth="1" strokeDasharray="4 4"
+          style={{ stroke: 'var(--chart-grid)' }} strokeWidth="1" strokeDasharray="4 4"
         />
 
         {/* エリア + ライン */}
@@ -74,7 +73,7 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
           return (
             <g key={gi}>
               <path d={areaPath} fill="url(#scoreGradient)" />
-              <path d={linePath} fill="none" stroke="#2D8A5F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d={linePath} fill="none" style={{ stroke: 'var(--accent-green)' }} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </g>
           );
         })}
@@ -90,8 +89,10 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
               key={d.date}
               cx={cx} cy={cy}
               r={isToday ? 5 : 3.5}
-              fill={isToday ? '#2D8A5F' : '#FFFFFF'}
-              stroke="#2D8A5F"
+              style={{
+                fill: isToday ? 'var(--accent-green)' : 'var(--bg-card)',
+                stroke: 'var(--accent-green)',
+              }}
               strokeWidth={isToday ? 0 : 2}
             />
           );
@@ -109,7 +110,7 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
               x={x} y={H - 4}
               textAnchor="middle"
               fontSize="11"
-              fill={isToday ? '#2D8A5F' : '#A09B92'}
+              style={{ fill: isToday ? 'var(--accent-green)' : 'var(--text-placeholder)' }}
               fontWeight={isToday ? '600' : '400'}
               fontFamily="DM Sans, system-ui, sans-serif"
             >

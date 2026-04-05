@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Sun, Moon, PenLine, LogOut, User, BookOpen, ChevronDown } from 'lucide-react';
 import Logo from './Logo';
 import ProfileModal from './ProfileModal';
+import { useTheme } from './ThemeProvider';
 
 interface Profile {
   display_name: string | null;
@@ -23,13 +24,13 @@ interface TopNavProps {
 export default function TopNav({ morningDone, eveningDone, profile, userId }: TopNavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const [showProfile, setShowProfile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const initials = (profile?.display_name || 'U').charAt(0).toUpperCase();
 
-  // メニュー外クリックで閉じる
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -47,29 +48,9 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
     router.push('/login');
   };
 
-  const menuItems = [
-    {
-      label: 'プロフィール',
-      icon: <User size={14} strokeWidth={2} />,
-      onClick: () => { setMenuOpen(false); setShowProfile(true); },
-    },
-    {
-      label: 'コンセプト',
-      icon: <BookOpen size={14} strokeWidth={2} />,
-      href: '/concept',
-      onClick: () => setMenuOpen(false),
-    },
-    {
-      label: 'ログアウト',
-      icon: <LogOut size={14} strokeWidth={2} />,
-      onClick: handleSignOut,
-      danger: true,
-    },
-  ];
-
   return (
     <>
-      <header style={{ background: '#FFFFFF', borderBottom: '0.5px solid var(--border-color)' }}>
+      <header style={{ background: 'var(--bg-card)', borderBottom: '0.5px solid var(--border-color)' }}>
         <div style={{
           maxWidth: '1100px', margin: '0 auto', padding: '0 40px',
           height: '58px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -85,9 +66,9 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
               ] as const).map(({ key, done, Icon, label }) => (
                 <span key={key} style={{
                   fontSize: '12px', padding: '4px 10px 4px 8px', borderRadius: '9999px',
-                  background: done ? '#E8F5EF' : '#EEECE8',
-                  color: done ? '#1A5C3E' : '#6B6660',
-                  border: `0.5px solid ${done ? '#9AD4B3' : '#D8D5CE'}`,
+                  background: done ? 'var(--bg-green)' : 'var(--bg-muted)',
+                  color: done ? 'var(--text-green-dark)' : 'var(--text-muted)',
+                  border: `0.5px solid ${done ? 'var(--border-green)' : 'var(--border-muted)'}`,
                   fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '5px',
                 }}>
                   <Icon size={11} strokeWidth={2.2} />
@@ -98,13 +79,13 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
 
             {pathname !== '/checkin' && (
               <Link href="/checkin" style={{
-                background: '#2D8A5F', color: 'white', borderRadius: '10px',
+                background: 'var(--accent-green)', color: 'white', borderRadius: '10px',
                 padding: '7px 14px', fontSize: '14px', fontWeight: 500,
                 textDecoration: 'none', transition: 'all 0.15s ease',
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#1A5C3E'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2D8A5F'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green-hover)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green)'; }}
                 onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)'; }}
                 onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
               >
@@ -119,33 +100,32 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
                 onClick={() => setMenuOpen(v => !v)}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '8px',
-                  background: menuOpen ? '#F8F6F2' : 'none',
-                  border: `0.5px solid ${menuOpen ? '#9AD4B3' : 'var(--border-color)'}`,
+                  background: menuOpen ? 'var(--bg-subtle)' : 'transparent',
+                  border: `0.5px solid ${menuOpen ? 'var(--border-green)' : 'var(--border-color)'}`,
                   borderRadius: '9999px', padding: '4px 10px 4px 4px',
                   cursor: 'pointer', transition: 'all 0.15s ease',
                 }}
-                onMouseEnter={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = '#9AD4B3'; (e.currentTarget as HTMLElement).style.background = '#F8F6F2'; } }}
-                onMouseLeave={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'; (e.currentTarget as HTMLElement).style.background = 'none'; } }}
+                onMouseEnter={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-green)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; } }}
+                onMouseLeave={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'; (e.currentTarget as HTMLElement).style.background = 'transparent'; } }}
               >
-                {/* アバター */}
                 <div style={{
                   width: '28px', height: '28px', borderRadius: '50%',
-                  background: '#E8F5EF', overflow: 'hidden',
+                  background: 'var(--bg-green)', overflow: 'hidden',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 }}>
                   {profile?.avatar_url ? (
                     <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: '#2D8A5F' }}>{initials}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-green)' }}>{initials}</span>
                   )}
                 </div>
-                <span style={{ fontSize: '14px', color: '#2E2B28', fontWeight: 500, maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500, maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {profile?.display_name ?? 'メニュー'}
                 </span>
                 <ChevronDown
                   size={13}
                   strokeWidth={2.2}
-                  color="#A09B92"
+                  color="var(--text-placeholder)"
                   style={{ transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease', flexShrink: 0 }}
                 />
               </button>
@@ -154,60 +134,87 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
               {menuOpen && (
                 <div style={{
                   position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                  background: '#FFFFFF',
+                  background: 'var(--bg-card)',
                   border: '0.5px solid var(--border-color)',
                   borderRadius: '12px',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
-                  width: '168px',
+                  boxShadow: 'var(--shadow-dropdown)',
+                  width: '188px',
                   overflow: 'hidden',
                   zIndex: 100,
                   animation: 'fadeInDown 0.12s ease',
                 }}>
-                  {menuItems.map((item, i) => {
-                    const el = (
-                      <button
-                        key={item.label}
-                        onClick={item.onClick}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
-                          padding: '11px 16px',
-                          background: 'none', border: 'none',
-                          borderTop: i > 0 ? '0.5px solid var(--border-color)' : 'none',
-                          fontSize: '14px', fontWeight: 500,
-                          color: item.danger ? '#C0392B' : '#2E2B28',
-                          cursor: 'pointer', textAlign: 'left',
-                          transition: 'background 0.12s ease',
-                        }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = item.danger ? '#FDF3E3' : '#F8F6F2'; }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
-                      >
-                        <span style={{ color: item.danger ? '#C0392B' : '#A09B92', display: 'flex' }}>{item.icon}</span>
-                        {item.label}
-                      </button>
-                    );
 
-                    // コンセプトはLinkでラップ
-                    if (item.href) {
-                      return (
-                        <Link key={item.label} href={item.href} style={{ textDecoration: 'none' }} onClick={item.onClick}>
-                          <span style={{
-                            display: 'flex', alignItems: 'center', gap: '10px',
-                            padding: '11px 16px',
-                            borderTop: i > 0 ? '0.5px solid var(--border-color)' : 'none',
-                            fontSize: '14px', fontWeight: 500, color: '#2E2B28',
-                            transition: 'background 0.12s ease',
-                          }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F8F6F2'; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
-                          >
-                            <span style={{ color: '#A09B92', display: 'flex' }}>{item.icon}</span>
-                            {item.label}
-                          </span>
-                        </Link>
-                      );
-                    }
-                    return el;
-                  })}
+                  {/* プロフィール */}
+                  <button
+                    onClick={() => { setMenuOpen(false); setShowProfile(true); }}
+                    style={itemStyle(false)}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <span style={{ color: 'var(--text-placeholder)', display: 'flex' }}><User size={14} strokeWidth={2} /></span>
+                    プロフィール
+                  </button>
+
+                  {/* テーマ切り替え */}
+                  <button
+                    onClick={toggleTheme}
+                    style={{ ...itemStyle(false), borderTop: '0.5px solid var(--border-color)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <span style={{ color: 'var(--text-placeholder)', display: 'flex' }}>
+                      {theme === 'dark' ? <Moon size={14} strokeWidth={2} /> : <Sun size={14} strokeWidth={2} />}
+                    </span>
+                    <span style={{ flex: 1, textAlign: 'left' }}>
+                      {theme === 'dark' ? 'ダークモード' : 'ライトモード'}
+                    </span>
+                    {/* pill toggle */}
+                    <div style={{
+                      width: '32px', height: '18px', borderRadius: '9px', flexShrink: 0,
+                      background: theme === 'dark' ? 'var(--accent-green)' : 'var(--border-muted)',
+                      position: 'relative', transition: 'background 0.2s ease',
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: '2px',
+                        left: theme === 'dark' ? '16px' : '2px',
+                        width: '14px', height: '14px', borderRadius: '50%',
+                        background: 'white',
+                        transition: 'left 0.2s ease',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                      }} />
+                    </div>
+                  </button>
+
+                  {/* コンセプト */}
+                  <Link
+                    href="/concept"
+                    style={{ textDecoration: 'none' }}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <span style={{
+                      ...itemStyle(false),
+                      borderTop: '0.5px solid var(--border-color)',
+                      display: 'flex',
+                    }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                    >
+                      <span style={{ color: 'var(--text-placeholder)', display: 'flex' }}><BookOpen size={14} strokeWidth={2} /></span>
+                      コンセプト
+                    </span>
+                  </Link>
+
+                  {/* ログアウト */}
+                  <button
+                    onClick={handleSignOut}
+                    style={{ ...itemStyle(true), borderTop: '0.5px solid var(--border-color)' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-amber)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                  >
+                    <span style={{ color: 'var(--text-error)', display: 'flex' }}><LogOut size={14} strokeWidth={2} /></span>
+                    ログアウト
+                  </button>
+
                 </div>
               )}
             </div>
@@ -228,3 +235,19 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
     </>
   );
 }
+
+const itemStyle = (danger: boolean): React.CSSProperties => ({
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  padding: '11px 16px',
+  background: 'transparent',
+  border: 'none',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: danger ? 'var(--text-error)' : 'var(--text-secondary)',
+  cursor: 'pointer',
+  textAlign: 'left',
+  transition: 'background 0.12s ease',
+});

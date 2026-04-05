@@ -48,13 +48,14 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 50,
-      background: 'rgba(26, 24, 21, 0.45)',
+      background: 'var(--overlay)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px',
     }}>
       <div style={{
-        background: '#FFFFFF', borderRadius: '20px', padding: '40px 36px',
+        background: 'var(--bg-card)', borderRadius: '20px', padding: '40px 36px',
         maxWidth: '400px', width: '100%',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+        boxShadow: 'var(--shadow-modal)',
+        border: '0.5px solid var(--border-color)',
         position: 'relative',
       }}>
         <button
@@ -62,32 +63,32 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
           style={{
             position: 'absolute', top: '16px', right: '16px',
             background: 'none', border: 'none', cursor: 'pointer',
-            color: '#A09B92', padding: '4px', borderRadius: '6px',
+            color: 'var(--text-placeholder)', padding: '4px', borderRadius: '6px',
             display: 'flex', transition: 'all 0.15s ease',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F8F6F2'; (e.currentTarget as HTMLElement).style.color = '#2E2B28'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = '#A09B92'; }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--text-placeholder)'; }}
         >
           <X size={18} strokeWidth={2} />
         </button>
 
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
-            width: '56px', height: '56px', background: '#E8F5EF', borderRadius: '50%',
+            width: '56px', height: '56px', background: 'var(--bg-green)', borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
           }}>
-            <Sparkles size={26} strokeWidth={1.8} color="#2D8A5F" />
+            <Sparkles size={26} strokeWidth={1.8} color="var(--text-green)" />
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#1A1815', marginBottom: '10px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px' }}>
             Coa が今週を振り返ります
           </h2>
-          <p style={{ fontSize: '14px', color: '#6B6660', lineHeight: 1.75 }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.75 }}>
             今週のコンディションデータをもとに、Coaがあなたへのメッセージを用意します。
           </p>
         </div>
 
         {error && (
-          <div style={{ color: '#C0392B', fontSize: '14px', marginBottom: '16px', background: '#FDF3E3', padding: '10px 14px', borderRadius: '8px' }}>
+          <div style={{ color: 'var(--text-error)', fontSize: '14px', marginBottom: '16px', background: 'var(--bg-amber)', padding: '10px 14px', borderRadius: '8px' }}>
             {error}
           </div>
         )}
@@ -97,7 +98,7 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
             onClick={handleGenerate}
             disabled={isGenerating}
             style={{
-              width: '100%', background: '#2D8A5F', color: 'white',
+              width: '100%', background: 'var(--accent-green)', color: 'white',
               border: 'none', borderRadius: '10px', padding: '14px',
               fontSize: '16px', fontWeight: 500,
               cursor: isGenerating ? 'not-allowed' : 'pointer',
@@ -105,8 +106,8 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={e => { if (!isGenerating) (e.currentTarget as HTMLElement).style.background = '#1A5C3E'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#2D8A5F'; }}
+            onMouseEnter={e => { if (!isGenerating) (e.currentTarget as HTMLElement).style.background = 'var(--accent-green-hover)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green)'; }}
             onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)'; }}
             onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
           >
@@ -118,13 +119,13 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
           <button
             onClick={handleLater}
             style={{
-              width: '100%', background: 'transparent', color: '#6B6660',
+              width: '100%', background: 'transparent', color: 'var(--text-muted)',
               border: '0.5px solid var(--border-color-hover)',
               borderRadius: '10px', padding: '14px',
               fontSize: '16px', fontWeight: 500, cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F8F6F2'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
             onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)'; }}
             onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
