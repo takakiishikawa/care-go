@@ -75,7 +75,7 @@ export default async function ConceptPage() {
           <div style={{ marginBottom: '36px' }}>
             <p style={sectionLabel}>コアバリュー</p>
             <p style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.5, margin: 0 }}>
-              安定して良いコンディションになる
+              安定した良いコンディション
             </p>
           </div>
 
@@ -204,7 +204,7 @@ export default async function ConceptPage() {
               {/* 行動指標 */}
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-placeholder)', marginBottom: '14px', letterSpacing: '0.04em' }}>
-                  行動指標（INPUT）
+                  行動指標
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {[
@@ -242,7 +242,7 @@ export default async function ConceptPage() {
               {/* 結果指標 */}
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-placeholder)', marginBottom: '14px', letterSpacing: '0.04em' }}>
-                  結果指標（OUTPUT）
+                  結果指標
                 </div>
                 <div style={{
                   padding: '18px 20px',

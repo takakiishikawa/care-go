@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { DailyMeditation } from '@/lib/types';
 
 interface MeditationLineChartProps {
@@ -12,17 +13,21 @@ const PAD = { top: 12, right: 8, bottom: 28, left: 8 };
 const CHART_W = W - PAD.left - PAD.right;
 const CHART_H = H - PAD.top - PAD.bottom;
 const MAX_COUNT = 2;
+const TW = 46;
+const TH = 24;
 
 function xPos(i: number, total: number): number {
   return PAD.left + (total === 1 ? CHART_W / 2 : (i / (total - 1)) * CHART_W);
 }
-
 function yPos(value: number): number {
   return PAD.top + (1 - value / MAX_COUNT) * CHART_H;
 }
 
+interface HoveredPoint { x: number; y: number; count: number; label: string }
+
 export default function MeditationLineChart({ data }: MeditationLineChartProps) {
   const today = new Date().toISOString().split('T')[0];
+  const [hovered, setHovered] = useState<HoveredPoint | null>(null);
   const baseline = PAD.top + CHART_H;
 
   const points = data.map((d, i) => ({
@@ -32,10 +37,7 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
     date: d.date,
   }));
 
-  const linePath = points.map((p, i) =>
-    `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`
-  ).join(' ');
-
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
   const areaPath = linePath
     + ` L ${points[points.length - 1].x.toFixed(1)} ${baseline}`
     + ` L ${points[0].x.toFixed(1)} ${baseline} Z`;
@@ -50,27 +52,29 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
           </linearGradient>
         </defs>
 
-        {/* エリア */}
         <path d={areaPath} fill="url(#meditationGradient)" />
-
-        {/* ライン */}
         <path d={linePath} fill="none" style={{ stroke: 'var(--accent-amber)' }} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* ドット */}
+        {/* ドット + ヒットエリア */}
         {points.map(p => {
           const isToday = p.date === today;
           const hasData = p.count > 0;
+          const date = new Date(p.date + 'T00:00:00');
+          const label = isToday ? '今日' : `${date.getMonth() + 1}/${date.getDate()}`;
           return (
-            <circle
-              key={p.date}
-              cx={p.x} cy={p.y}
-              r={isToday ? 5 : 3.5}
-              style={{
-                fill: hasData ? (isToday ? 'var(--accent-amber)' : 'var(--bg-card)') : 'var(--bg-muted)',
-                stroke: hasData ? 'var(--accent-amber)' : 'var(--border-muted)',
-              }}
-              strokeWidth={isToday && hasData ? 0 : 2}
-            />
+            <g key={p.date}>
+              <circle cx={p.x} cy={p.y} r={isToday ? 5 : 3.5}
+                style={{
+                  fill: hasData ? (isToday ? 'var(--accent-amber)' : 'var(--bg-card)') : 'var(--bg-muted)',
+                  stroke: hasData ? 'var(--accent-amber)' : 'var(--border-muted)',
+                }}
+                strokeWidth={isToday && hasData ? 0 : 2}
+              />
+              <circle cx={p.x} cy={p.y} r={14} fill="transparent" style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHovered({ x: p.x, y: p.y, count: p.count, label })}
+                onMouseLeave={() => setHovered(null)}
+              />
+            </g>
           );
         })}
 
@@ -81,19 +85,31 @@ export default function MeditationLineChart({ data }: MeditationLineChartProps) 
           const date = new Date(d.date + 'T00:00:00');
           const label = isToday ? '今日' : `${date.getMonth() + 1}/${date.getDate()}`;
           return (
-            <text
-              key={d.date}
-              x={x} y={H - 4}
-              textAnchor="middle"
-              fontSize="11"
+            <text key={d.date} x={x} y={H - 4} textAnchor="middle" fontSize="11"
               style={{ fill: isToday ? 'var(--accent-amber)' : 'var(--text-placeholder)' }}
-              fontWeight={isToday ? '600' : '400'}
-              fontFamily="DM Sans, system-ui, sans-serif"
-            >
+              fontWeight={isToday ? '600' : '400'} fontFamily="DM Sans, system-ui, sans-serif">
               {label}
             </text>
           );
         })}
+
+        {/* Tooltip */}
+        {hovered && (() => {
+          const tx = Math.min(Math.max(hovered.x - TW / 2, PAD.left), W - PAD.right - TW);
+          const ty = hovered.y - TH - 8 < PAD.top ? hovered.y + 10 : hovered.y - TH - 8;
+          const text = hovered.count === 0 ? 'なし' : `${hovered.count}回`;
+          return (
+            <g style={{ pointerEvents: 'none' }}>
+              <rect x={tx} y={ty} width={TW} height={TH} rx={6}
+                style={{ fill: 'var(--bg-card)', stroke: 'var(--border-color)', strokeWidth: 0.5 }}
+              />
+              <text x={tx + TW / 2} y={ty + TH / 2 + 4.5} textAnchor="middle" fontSize="12" fontWeight="700"
+                style={{ fill: 'var(--text-primary)' }} fontFamily="DM Sans, system-ui, sans-serif">
+                {text}
+              </text>
+            </g>
+          );
+        })()}
       </svg>
     </div>
   );
