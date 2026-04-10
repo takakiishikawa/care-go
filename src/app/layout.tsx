@@ -14,12 +14,6 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "CareGo",
   description: "良いコンディションの安定を、AIと一緒に作る",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "CareGo",
-  },
 };
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('carego-theme');if(s){document.documentElement.setAttribute('data-theme',s);}else{var h=(new Date().getUTCHours()+7)%24;document.documentElement.setAttribute('data-theme',(h>=18||h<6)?'dark':'light');}}catch(e){}})();`;
@@ -38,6 +32,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="CareGo" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body style={{ fontFamily: 'var(--font-body, "DM Sans", system-ui, sans-serif)' }}>
