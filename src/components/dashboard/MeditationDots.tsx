@@ -31,10 +31,10 @@ export default function MeditationDots({ data }: MeditationDotsProps) {
           }}>
             {/* 回数ラベル */}
             <div style={{
-              fontSize: '12px',
+              fontSize: '14px',
               fontWeight: d.count > 0 ? 600 : 400,
               color: d.count > 0 ? 'var(--text-primary)' : 'var(--text-placeholder)',
-              height: '18px',
+              height: '20px',
               display: 'flex', alignItems: 'center',
             }}>
               {d.count > 0 ? `${d.count}回` : '–'}
@@ -42,7 +42,7 @@ export default function MeditationDots({ data }: MeditationDotsProps) {
 
             {/* ドット */}
             <div style={{
-              width: '32px', height: '32px', borderRadius: '50%',
+              width: '36px', height: '36px', borderRadius: '50%',
               background: dotBg,
               border: `1.5px solid ${dotBorder}`,
               flexShrink: 0,
@@ -50,7 +50,7 @@ export default function MeditationDots({ data }: MeditationDotsProps) {
 
             {/* 日付ラベル */}
             <div style={{
-              fontSize: '11px',
+              fontSize: '14px',
               color: isToday ? 'var(--accent-amber)' : 'var(--text-placeholder)',
               fontWeight: isToday ? 600 : 400,
               fontFamily: 'DM Sans, system-ui, sans-serif',

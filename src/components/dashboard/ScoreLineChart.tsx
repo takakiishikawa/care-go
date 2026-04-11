@@ -8,12 +8,12 @@ interface ScoreLineChartProps {
 }
 
 const W = 480;
-const H = 495;
-const PAD = { top: 18, right: 10, bottom: 28, left: 10 };
+const H = 510;
+const PAD = { top: 18, right: 10, bottom: 36, left: 18 };
 const CHART_W = W - PAD.left - PAD.right;
 const CHART_H = H - PAD.top - PAD.bottom;
-const TW = 46;
-const TH = 24;
+const TW = 56;
+const TH = 28;
 
 function xPos(i: number, total: number): number {
   return PAD.left + (total === 1 ? CHART_W / 2 : (i / (total - 1)) * CHART_W);
@@ -70,7 +70,7 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
               x1={PAD.left} y1={yPos(v)} x2={W - PAD.right} y2={yPos(v)}
               style={{ stroke: 'var(--chart-grid)' }} strokeWidth="1" strokeDasharray="4 4"
             />
-            <text x={PAD.left - 4} y={yPos(v) + 4} textAnchor="end" fontSize="10"
+            <text x={PAD.left - 4} y={yPos(v) + 4} textAnchor="end" fontSize="14"
               style={{ fill: 'var(--text-placeholder)' }} fontFamily="DM Sans, system-ui, sans-serif">
               {v}
             </text>
@@ -120,7 +120,7 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
           const date = new Date(d.date + 'T00:00:00');
           const label = isToday ? '今日' : `${date.getMonth() + 1}/${date.getDate()}`;
           return (
-            <text key={d.date} x={x} y={H - 4} textAnchor="middle" fontSize="11"
+            <text key={d.date} x={x} y={H - 4} textAnchor="middle" fontSize="14"
               style={{ fill: isToday ? 'var(--accent-green)' : 'var(--text-placeholder)' }}
               fontWeight={isToday ? '600' : '400'} fontFamily="DM Sans, system-ui, sans-serif">
               {label}
@@ -137,7 +137,7 @@ export default function ScoreLineChart({ data }: ScoreLineChartProps) {
               <rect x={tx} y={ty} width={TW} height={TH} rx={6}
                 style={{ fill: 'var(--bg-card)', stroke: 'var(--border-color)', strokeWidth: 0.5 }}
               />
-              <text x={tx + TW / 2} y={ty + TH / 2 + 4.5} textAnchor="middle" fontSize="12" fontWeight="700"
+              <text x={tx + TW / 2} y={ty + TH / 2 + 5} textAnchor="middle" fontSize="14" fontWeight="700"
                 style={{ fill: 'var(--text-primary)' }} fontFamily="DM Sans, system-ui, sans-serif">
                 {hovered.value}
               </text>

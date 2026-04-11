@@ -137,7 +137,7 @@ export default async function DashboardPage() {
 
           {/* 左：本日のコンディション */}
           <div style={cardStyle}>
-            <div style={{ fontSize: '13px', color: 'var(--text-placeholder)', fontWeight: 500, marginBottom: '20px' }}>
+            <div style={{ fontSize: '14px', color: 'var(--text-placeholder)', fontWeight: 500, marginBottom: '20px' }}>
               本日のコンディション
             </div>
 
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
                       <span style={{ fontSize: '15px', fontWeight: 600, color: diffColor }}>
                         {scoreDiff > 0 ? `▲ +${scoreDiff}` : scoreDiff < 0 ? `▼ ${scoreDiff}` : '±0'}
                       </span>
-                      <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--text-placeholder)' }}>前日比</span>
+                      <span style={{ fontSize: '14px', fontWeight: 400, color: 'var(--text-placeholder)' }}>前日比</span>
                     </div>
                   )}
                 </div>
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
                       border: '0.5px solid var(--border-color)',
                     }}>
                       <Icon size={12} strokeWidth={2} color="var(--text-placeholder)" />
-                      <span style={{ fontSize: '12px', color: 'var(--text-placeholder)' }}>{label}</span>
+                      <span style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>{label}</span>
                       <span style={{
                         fontSize: '18px', fontWeight: 600, lineHeight: 1,
                         color: score !== null ? 'var(--text-primary)' : 'var(--border-muted)',
@@ -209,13 +209,13 @@ export default async function DashboardPage() {
             }}>
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '7px',
-                fontSize: '13px', color: 'var(--text-placeholder)', fontWeight: 500,
+                fontSize: '14px', color: 'var(--text-placeholder)', fontWeight: 500,
               }}>
                 <TrendingUp size={14} strokeWidth={2} color="var(--text-placeholder)" />
                 コンディションスコア（7日間）
               </div>
               {thisWeekAvg !== null && lastWeekAvg !== null && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', flexShrink: 0 }}>
                   <span style={{ color: 'var(--text-placeholder)' }}>
                     今週 <span style={{ color: 'var(--text-green)', fontWeight: 600 }}>{thisWeekAvg}</span>
                   </span>
@@ -224,7 +224,7 @@ export default async function DashboardPage() {
                   </span>
                   {weekDiff !== null && weekDiff !== 0 && (
                     <span style={{
-                      fontWeight: 600, fontSize: '12px',
+                      fontWeight: 600, fontSize: '14px',
                       color: weekDiff > 0 ? 'var(--accent-green)' : 'var(--accent-amber)',
                     }}>
                       ({weekDiff > 0 ? `+${weekDiff}` : weekDiff})
@@ -247,12 +247,12 @@ export default async function DashboardPage() {
           }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: '7px',
-              fontSize: '13px', color: 'var(--text-placeholder)', fontWeight: 500,
+              fontSize: '14px', color: 'var(--text-placeholder)', fontWeight: 500,
             }}>
               <Wind size={14} strokeWidth={2} color="var(--text-placeholder)" />
               瞑想（7日間）
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--text-placeholder)' }}>
+            <div style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>
               今週{' '}
               <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '15px' }}>
                 {totalMeditations}

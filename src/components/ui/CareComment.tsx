@@ -55,7 +55,7 @@ export default function CareComment({ comment, compact = false }: CareCommentPro
       }}>
         <div style={{
           display: 'flex', alignItems: 'center', gap: '6px',
-          fontSize: '12px', color: 'var(--text-green)', marginBottom: '6px', fontWeight: 600,
+          fontSize: '14px', color: 'var(--text-green)', marginBottom: '6px', fontWeight: 600,
         }}>
           <Sparkles size={12} strokeWidth={2} />
           ひとこと
@@ -71,7 +71,7 @@ export default function CareComment({ comment, compact = false }: CareCommentPro
     <div>
       <div style={{
         display: 'flex', alignItems: 'center', gap: '6px',
-        fontSize: '12px', color: 'var(--text-green)', marginBottom: compact ? '10px' : '12px', fontWeight: 600,
+        fontSize: '14px', color: 'var(--text-green)', marginBottom: compact ? '10px' : '12px', fontWeight: 600,
       }}>
         <Sparkles size={12} strokeWidth={2} />
         ひとこと
@@ -92,13 +92,13 @@ export default function CareComment({ comment, compact = false }: CareCommentPro
                 padding: compact ? '10px 14px' : '14px 16px',
               }}>
                 <div style={{
-                  fontSize: '11px', fontWeight: 700, letterSpacing: '0.04em',
+                  fontSize: '14px', fontWeight: 700, letterSpacing: '0.04em',
                   color: colors.label, marginBottom: '5px', textTransform: 'uppercase',
                 }}>
                   {label}
                 </div>
                 <p style={{
-                  fontSize: compact ? '13px' : '14px',
+                  fontSize: '14px',
                   color: 'var(--text-secondary)', lineHeight: 1.75, margin: 0,
                 }}>
                   {text}
