@@ -51,12 +51,12 @@ export default async function ConceptPage() {
   // ユーザーストーリーモデル
   const dailySteps = [
     { icon: <Sun size={18} strokeWidth={1.8} color="var(--text-amber)" />, label: 'チェックイン', sub: '朝・夜、気分と感情を記録', bg: 'var(--bg-amber)', border: 'var(--border-amber)' },
-    { icon: <Sparkles size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Coa フィードバック', sub: 'スコアと短いコメントを即時返す', bg: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <Sparkles size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Careフィードバック', sub: 'スコアと短いコメントを即時返す', bg: 'var(--bg-green)', border: 'var(--border-green)' },
     { icon: <Wind size={18} strokeWidth={1.8} color="#2980B9" />, label: '瞑想', sub: 'ログが自動記録される', bg: 'var(--bg-blue)', border: 'var(--border-blue)' },
   ];
 
   const weeklySteps = [
-    { icon: <TrendingUp size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Coa インサイト', sub: '週次データを自動分析', bg: 'var(--bg-green)', border: 'var(--border-green)' },
+    { icon: <TrendingUp size={18} strokeWidth={1.8} color="var(--text-green)" />, label: 'Careインサイト', sub: '週次データを自動分析', bg: 'var(--bg-green)', border: 'var(--border-green)' },
     { icon: <Sparkles size={18} strokeWidth={1.8} color="var(--text-amber)" />, label: 'パターン認識', sub: '傾向と気づきが可視化される', bg: 'var(--bg-amber)', border: 'var(--border-amber)' },
     { icon: <Target size={18} strokeWidth={1.8} color="var(--text-green)" />, label: '行動変化', sub: '気づきが習慣の改善につながる', bg: 'var(--bg-green)', border: 'var(--border-green)' },
   ];

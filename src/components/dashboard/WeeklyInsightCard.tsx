@@ -24,7 +24,7 @@ export default function WeeklyInsightCard({ insight, thisWeekAvg, lastWeekAvg }:
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-placeholder)', fontWeight: 500 }}>
           <BrainCircuit size={16} strokeWidth={1.8} color="var(--text-placeholder)" />
-          Coa の週次レポート
+          Care の週次レポート
         </div>
 
         {/* 週平均比較バッジ */}
@@ -72,7 +72,7 @@ export default function WeeklyInsightCard({ insight, thisWeekAvg, lastWeekAvg }:
         </div>
       ) : (
         <p style={{ fontSize: '14px', color: 'var(--text-placeholder)', margin: 0, lineHeight: 1.7 }}>
-          日曜日にログインすると、Coaが今週を振り返ります。
+          日曜日にログインすると、Careが今週を振り返ります。
         </p>
       )}
     </div>

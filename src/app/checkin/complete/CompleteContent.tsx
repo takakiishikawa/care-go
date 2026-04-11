@@ -3,7 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Sparkles, Wind, CheckCircle, LayoutDashboard } from 'lucide-react';
+import { Wind, CheckCircle, LayoutDashboard } from 'lucide-react';
+import CareComment from '@/components/ui/CareComment';
 
 interface CompleteContentProps {
   meditationUrl: string;
@@ -72,20 +73,10 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
           <div style={{ fontSize: '14px', color: 'var(--text-placeholder)', marginTop: '4px' }}>/ 100</div>
         </div>
 
-        {/* Coa のひとこと */}
+        {/* Care のひとこと */}
         {comment && (
-          <div style={{
-            background: 'var(--bg-green)', borderLeft: '3px solid #4DAF80',
-            borderRadius: '0 12px 12px 0', padding: '16px 18px', marginBottom: '28px',
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              fontSize: '12px', color: 'var(--text-green)', fontWeight: 600, marginBottom: '8px',
-            }}>
-              <Sparkles size={13} strokeWidth={2} />
-              Coa のひとこと
-            </div>
-            <p style={{ fontSize: '15px', color: 'var(--text-green-dark)', lineHeight: 1.75, margin: 0 }}>{comment}</p>
+          <div style={{ marginBottom: '28px' }}>
+            <CareComment comment={comment} />
           </div>
         )}
 

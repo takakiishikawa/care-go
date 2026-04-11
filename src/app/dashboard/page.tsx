@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Sun, Moon, TrendingUp, Wind, Sparkles } from 'lucide-react';
+import { Sun, Moon, TrendingUp, Wind } from 'lucide-react';
+import CareComment from '@/components/ui/CareComment';
 import TopNav from '@/components/ui/TopNav';
 import ScoreLineChart from '@/components/dashboard/ScoreLineChart';
 import MeditationLineChart from '@/components/dashboard/MeditationLineChart';
@@ -181,22 +182,10 @@ export default async function DashboardPage() {
                 ))}
               </div>
 
-              {/* ③ Coaのひとこと */}
+              {/* ③ Care のひとこと */}
               {latestCheckin?.ai_comment && (
-                <div style={{
-                  borderTop: '0.5px solid var(--border-color)',
-                  paddingTop: '16px',
-                }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    fontSize: '12px', color: 'var(--text-green)', marginBottom: '6px', fontWeight: 600,
-                  }}>
-                    <Sparkles size={12} strokeWidth={2} />
-                    Coa のひとこと
-                  </div>
-                  <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
-                    {latestCheckin.ai_comment}
-                  </p>
+                <div style={{ borderTop: '0.5px solid var(--border-color)', paddingTop: '16px' }}>
+                  <CareComment comment={latestCheckin.ai_comment} compact />
                 </div>
               )}
             </>

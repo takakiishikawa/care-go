@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Smile, Tag, NotebookPen, Loader2, Activity } from 'lucide-react';
+import { Smile, Tag, NotebookPen, Loader2, Activity, Mic, MicOff } from 'lucide-react';
 import MoodSelector from './MoodSelector';
 import EmotionTags from './EmotionTags';
 import ActivityTags from './ActivityTags';
@@ -23,6 +23,67 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [btnHovered, setBtnHovered] = useState(false);
   const [btnPressed, setBtnPressed] = useState(false);
+
+  // 音声入力
+  interface SREvent { resultIndex: number; results: SpeechRecognitionResultList }
+  type SR = { lang: string; interimResults: boolean; continuous: boolean; maxAlternatives: number; onresult: ((e: SREvent) => void) | null; onerror: (() => void) | null; onend: (() => void) | null; start: () => void; stop: () => void };
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const recognitionRef = useRef<SR | null>(null);
+  const baseTextRef = useRef('');
+
+  useEffect(() => {
+    const hasSR = typeof window !== 'undefined' &&
+      !!(window as unknown as Record<string, unknown>).SpeechRecognition ||
+      !!(window as unknown as Record<string, unknown>).webkitSpeechRecognition;
+    setSpeechSupported(hasSR);
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setIsRecording(false);
+  }, []);
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) { stopRecording(); return; }
+
+    const w = window as unknown as Record<string, new () => SR>;
+    const SRClass = w.SpeechRecognition || w.webkitSpeechRecognition;
+    if (!SRClass) return;
+
+    baseTextRef.current = freeText;
+    const rec = new SRClass();
+    rec.lang = 'ja-JP';
+    rec.interimResults = true;
+    rec.continuous = true;
+    rec.maxAlternatives = 1;
+
+    rec.onresult = (event: SREvent) => {
+      let interim = '';
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) finalTranscript += t;
+        else interim += t;
+      }
+      if (finalTranscript) {
+        baseTextRef.current = (baseTextRef.current + finalTranscript).trimStart();
+      }
+      setFreeText((baseTextRef.current + interim).trimStart());
+    };
+
+    rec.onerror = () => stopRecording();
+    rec.onend = () => {
+      setFreeText(baseTextRef.current);
+      setIsRecording(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = rec;
+    rec.start();
+    setIsRecording(true);
+  }, [isRecording, freeText, stopRecording]);
 
   const greeting = timing === 'morning'
     ? 'おはようございます。今朝の状態は？'
@@ -155,22 +216,51 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
             <NotebookPen size={15} strokeWidth={2} color="var(--accent-green)" />
             メモ
             <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>任意</span>
+            {isRecording && (
+              <span style={{ fontSize: '12px', color: '#E05040', fontWeight: 500, marginLeft: '4px', animation: 'pulse 1s ease-in-out infinite' }}>
+                ● 録音中
+              </span>
+            )}
           </label>
-          <textarea
-            value={freeText}
-            onChange={e => setFreeText(e.target.value)}
-            placeholder="今の気持ちを自由に（省略OK）"
-            rows={3}
-            style={{
-              width: '100%', border: '0.5px solid var(--border-color)',
-              borderRadius: '10px', padding: '12px 14px',
-              fontSize: '16px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
-              resize: 'none', outline: 'none', fontFamily: 'inherit',
-              lineHeight: 1.6, boxSizing: 'border-box', transition: 'all 0.15s ease',
-            }}
-            onFocus={e => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; }}
-            onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
-          />
+          <div style={{ position: 'relative' }}>
+            <textarea
+              value={freeText}
+              onChange={e => { if (!isRecording) setFreeText(e.target.value); }}
+              placeholder="今の気持ちを自由に（省略OK）"
+              rows={3}
+              style={{
+                width: '100%', border: `0.5px solid ${isRecording ? '#E05040' : 'var(--border-color)'}`,
+                borderRadius: '10px', padding: '12px 48px 12px 14px',
+                fontSize: '16px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
+                resize: 'none', outline: 'none', fontFamily: 'inherit',
+                lineHeight: 1.6, boxSizing: 'border-box', transition: 'all 0.15s ease',
+                boxShadow: isRecording ? '0 0 0 3px rgba(224,80,64,0.15)' : 'none',
+              }}
+              onFocus={e => { if (!isRecording) { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; } }}
+              onBlur={e => { if (!isRecording) { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; } }}
+            />
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={toggleRecording}
+                title={isRecording ? '録音を停止' : '音声入力を開始'}
+                style={{
+                  position: 'absolute', right: '10px', bottom: '10px',
+                  width: '32px', height: '32px', borderRadius: '50%',
+                  border: 'none',
+                  background: isRecording ? '#E05040' : 'var(--bg-subtle)',
+                  color: isRecording ? 'white' : 'var(--text-placeholder)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', transition: 'all 0.15s ease',
+                  boxShadow: isRecording ? '0 2px 8px rgba(224,80,64,0.4)' : 'none',
+                }}
+                onMouseEnter={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-muted)'; }}
+                onMouseLeave={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+              >
+                {isRecording ? <MicOff size={15} strokeWidth={2} /> : <Mic size={15} strokeWidth={2} />}
+              </button>
+            )}
+          </div>
         </section>
 
         {error && (
@@ -197,7 +287,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           }}
         >
           {isSubmitting
-            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> Coa がコメントを書いています…</>
+            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> Care がコメントを書いています…</>
             : '記録する'
           }
         </button>
