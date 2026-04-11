@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { TimePeriodRatings } from '@/lib/types';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -18,7 +19,7 @@ export async function POST() {
 
   const { data: checkins } = await supabase
     .from('checkins')
-    .select('checked_at, timing, mood_score, emotion_tags, condition_score')
+    .select('checked_at, timing, time_period_ratings, activity_tags, condition_score')
     .gte('checked_at', sevenDaysAgo.toISOString())
     .order('checked_at', { ascending: true });
 
@@ -26,29 +27,44 @@ export async function POST() {
     return NextResponse.json({ error: 'データが不足しています' }, { status: 400 });
   }
 
-  // 感情タグの集計
-  const allTags = checkins.flatMap(c => c.emotion_tags);
-  const tagCounts: Record<string, number> = {};
-  allTags.forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
+  // 評価分布の集計（A/B/C）
+  const ratingCounts: Record<string, number> = { A: 0, B: 0, C: 0 };
+  checkins.forEach(c => {
+    const ratings = c.time_period_ratings as TimePeriodRatings | null;
+    if (ratings) {
+      Object.values(ratings).forEach(r => {
+        if (r in ratingCounts) ratingCounts[r]++;
+      });
+    }
+  });
+  const totalRatings = Object.values(ratingCounts).reduce((a, b) => a + b, 0);
+  const ratingText = totalRatings > 0
+    ? `良い(A): ${ratingCounts.A}回、普通(B): ${ratingCounts.B}回、悪い(C): ${ratingCounts.C}回`
+    : 'データなし';
 
-  const avgScore = checkins
-    .filter(c => c.condition_score !== null)
-    .reduce((sum, c) => sum + (c.condition_score || 0), 0) / checkins.length;
-
-  const topTags = Object.entries(tagCounts)
+  // 活動タグの集計
+  const allActivities = checkins.flatMap(c => c.activity_tags || []);
+  const activityCounts: Record<string, number> = {};
+  allActivities.forEach(tag => { activityCounts[tag] = (activityCounts[tag] || 0) + 1; });
+  const topActivities = Object.entries(activityCounts)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5)
     .map(([tag, count]) => `${tag}(${count}回)`)
     .join('、');
 
-  const summary = `チェックイン回数: ${checkins.length}回、平均コンディションスコア: ${avgScore.toFixed(1)}、よく感じた感情: ${topTags}`;
+  const validScores = checkins.filter(c => c.condition_score !== null);
+  const avgScore = validScores.length > 0
+    ? validScores.reduce((sum, c) => sum + (c.condition_score || 0), 0) / validScores.length
+    : 0;
+
+  const summary = `チェックイン回数: ${checkins.length}回、平均コンディションスコア: ${avgScore.toFixed(1)}、評価分布: ${ratingText}、よく見られた活動: ${topActivities || 'なし'}`;
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
     max_tokens: 400,
     messages: [{ role: 'user', content: summary }],
     system: `過去7日間のコンディションデータを分析して、ユーザーへの週次インサイトを日本語で返してください。
-感情の傾向・スコアの変化・気づきや提案を3〜5文で。
+コンディション評価の傾向・スコアの変化・活動との相関・気づきや提案を3〜5文で。
 ポジティブな視点を基本としつつ、正直に。
 テキストのみ返してください。`,
   });

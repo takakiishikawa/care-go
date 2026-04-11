@@ -6,7 +6,7 @@ import webpush from 'web-push';
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 async function generateNotificationMessage(
-  recentCheckins: Array<{ condition_score: number | null; emotion_tags: string[]; activity_tags: string[] }>
+  recentCheckins: Array<{ condition_score: number | null; activity_tags: string[] }>
 ): Promise<string> {
   const avgScore = recentCheckins.length > 0
     ? Math.round(recentCheckins.filter(c => c.condition_score !== null).reduce((s, c) => s + (c.condition_score || 0), 0) / recentCheckins.length)
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
       // ユーザーの最近のチェックイン取得
       const { data: recentCheckins } = await supabase
         .from('checkins')
-        .select('condition_score, emotion_tags, activity_tags')
+        .select('condition_score, activity_tags')
         .eq('user_id', sub.user_id)
         .gte('checked_at', sevenDaysAgo.toISOString())
         .order('checked_at', { ascending: false })

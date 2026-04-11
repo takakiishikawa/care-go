@@ -53,7 +53,7 @@ export default function CareComment({ comment, compact = false }: CareCommentPro
           fontSize: '12px', color: 'var(--text-green)', marginBottom: '6px', fontWeight: 600,
         }}>
           <Sparkles size={12} strokeWidth={2} />
-          Care のひとこと
+          ひとこと
         </div>
         <p style={{ fontSize: compact ? '14px' : '15px', color: 'var(--text-green-dark)', lineHeight: 1.75, margin: 0 }}>
           {comment}
@@ -69,7 +69,7 @@ export default function CareComment({ comment, compact = false }: CareCommentPro
         fontSize: '12px', color: 'var(--text-green)', marginBottom: compact ? '10px' : '12px', fontWeight: 600,
       }}>
         <Sparkles size={12} strokeWidth={2} />
-        Care のひとこと
+        ひとこと
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? '8px' : '10px' }}>
         {sections.map(({ label, text }) => {

@@ -80,10 +80,10 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
             <Sparkles size={26} strokeWidth={1.8} color="var(--text-green)" />
           </div>
           <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '10px' }}>
-            Care が今週を振り返ります
+            今週を振り返ります
           </h2>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.75 }}>
-            今週のコンディションデータをもとに、Careがあなたへのメッセージを用意します。
+            今週のコンディションデータをもとに、振り返りメッセージを生成します。
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
             onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
           >
             {isGenerating
-              ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Care が考えています…</>
+              ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> 生成しています…</>
               : <><Sparkles size={16} strokeWidth={2} /> 振り返りを見る</>
             }
           </button>

@@ -31,7 +31,7 @@ export default function LoginPage() {
           <Logo size="lg" />
         </div>
         <p style={{ fontSize: '15px', color: 'var(--text-muted)', lineHeight: 1.75, marginBottom: '36px' }}>
-          良いコンディションの安定を、<br />AIパートナー Care と一緒に作る。
+          良いコンディションの安定を、<br />毎日の記録と AIの気づきで作る。
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px', flexWrap: 'wrap' }}>

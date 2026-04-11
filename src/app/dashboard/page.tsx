@@ -182,7 +182,7 @@ export default async function DashboardPage() {
                 ))}
               </div>
 
-              {/* ③ Care のひとこと */}
+              {/* ③ ひとこと */}
               {latestCheckin?.ai_comment && (
                 <div style={{ borderTop: '0.5px solid var(--border-color)', paddingTop: '16px' }}>
                   <CareComment comment={latestCheckin.ai_comment} compact />

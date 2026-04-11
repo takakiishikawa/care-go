@@ -73,7 +73,7 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
           <div style={{ fontSize: '14px', color: 'var(--text-placeholder)', marginTop: '4px' }}>/ 100</div>
         </div>
 
-        {/* Care のひとこと */}
+        {/* ひとこと */}
         {comment && (
           <div style={{ marginBottom: '28px' }}>
             <CareComment comment={comment} />

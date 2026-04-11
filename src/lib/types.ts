@@ -1,12 +1,13 @@
 export type CheckinTiming = 'morning' | 'evening';
+export type Rating = 'A' | 'B' | 'C';
+export type TimePeriodRatings = Record<string, Rating>;
 
 export interface Checkin {
   id: string;
   user_id: string;
   checked_at: string;
   timing: CheckinTiming;
-  mood_score: number;
-  emotion_tags: string[];
+  time_period_ratings: TimePeriodRatings;
   activity_tags: string[];
   free_text: string | null;
   condition_score: number | null;

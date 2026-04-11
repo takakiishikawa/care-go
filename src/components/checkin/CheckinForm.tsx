@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Smile, Tag, NotebookPen, Loader2, Activity, Mic, MicOff } from 'lucide-react';
-import MoodSelector from './MoodSelector';
-import EmotionTags from './EmotionTags';
+import { BarChart2, Tag, NotebookPen, Loader2, Activity, Mic, MicOff } from 'lucide-react';
+import TimePeriodSelector from './TimePeriodSelector';
 import ActivityTags from './ActivityTags';
 import { createClient } from '@/lib/supabase/client';
+import { TimePeriodRatings } from '@/lib/types';
 
 interface CheckinFormProps {
   timing: 'morning' | 'evening';
@@ -14,8 +14,7 @@ interface CheckinFormProps {
 
 export default function CheckinForm({ timing }: CheckinFormProps) {
   const router = useRouter();
-  const [moodScore, setMoodScore] = useState<number | null>(null);
-  const [emotionTags, setEmotionTags] = useState<string[]>([]);
+  const [ratings, setRatings] = useState<TimePeriodRatings>({});
   const [activityTags, setActivityTags] = useState<string[]>([]);
   const [userActivityTags, setUserActivityTags] = useState<string[]>([]);
   const [freeText, setFreeText] = useState('');
@@ -91,6 +90,12 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
 
   const activityLabel = timing === 'morning' ? '昨夜の活動' : '今日の活動';
 
+  const expectedPeriods = timing === 'morning'
+    ? ['last_night', 'this_morning']
+    : ['morning', 'afternoon', 'evening', 'night'];
+
+  const isValid = expectedPeriods.every(p => ratings[p] !== undefined);
+
   // ユーザーのカスタム活動タグを取得
   useEffect(() => {
     const supabase = createClient();
@@ -112,8 +117,6 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
     });
   };
 
-  const isValid = moodScore !== null && emotionTags.length > 0;
-
   const handleSubmit = async () => {
     if (!isValid) return;
     setIsSubmitting(true);
@@ -124,8 +127,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           timing,
-          mood_score: moodScore,
-          emotion_tags: emotionTags,
+          time_period_ratings: ratings,
           activity_tags: activityTags,
           free_text: freeText || null,
         }),
@@ -161,31 +163,17 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         borderRadius: '14px', padding: '32px',
         boxShadow: 'var(--shadow-card)',
       }}>
-        {/* 気分スコア */}
+        {/* 時間帯別コンディション */}
         <section style={{ marginBottom: '28px' }}>
           <label style={{
             display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
+            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '16px',
           }}>
-            <Smile size={16} strokeWidth={2} color="var(--accent-green)" />
-            今の気分
+            <BarChart2 size={15} strokeWidth={2} color="var(--accent-green)" />
+            時間帯別コンディション
             <span style={{ color: 'var(--text-error)', fontWeight: 400 }}>*</span>
           </label>
-          <MoodSelector value={moodScore} onChange={setMoodScore} />
-        </section>
-
-        {/* 感情タグ */}
-        <section style={{ marginBottom: '28px' }}>
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
-          }}>
-            <Tag size={15} strokeWidth={2} color="var(--accent-green)" />
-            感情タグ
-            <span style={{ color: 'var(--text-error)', fontWeight: 400 }}>*</span>
-            <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>複数選択可</span>
-          </label>
-          <EmotionTags selected={emotionTags} onChange={setEmotionTags} />
+          <TimePeriodSelector timing={timing} ratings={ratings} onChange={setRatings} />
         </section>
 
         {/* 活動タグ */}
@@ -287,14 +275,14 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           }}
         >
           {isSubmitting
-            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> Care がコメントを書いています…</>
+            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> コメントを生成しています…</>
             : '記録する'
           }
         </button>
 
         {!isValid && (
           <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-placeholder)', marginTop: '10px' }}>
-            気分と感情タグを選択してください
+            すべての時間帯を選択してください
           </p>
         )}
       </div>
