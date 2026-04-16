@@ -3,6 +3,7 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import ServiceWorkerRegistrar from "@/components/ui/ServiceWorkerRegistrar";
+import SplashScreen from "@/components/ui/SplashScreen";
 
 const dmSans = DM_Sans({
   weight: ["400", "500", "600"],
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body style={{ fontFamily: 'var(--font-body, "DM Sans", system-ui, sans-serif)' }}>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <ThemeProvider>
+          <SplashScreen />
           <ServiceWorkerRegistrar />
           {children}
         </ThemeProvider>
