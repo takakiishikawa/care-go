@@ -4,16 +4,16 @@ import { useState, KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 
 const MORNING_TAGS = [
-  'ポルノ', '飲酒', 'kindle', 'YouTube', '友人とチャット',
+  'ポルノ', '飲酒', 'kindle', 'YouTube', '友人とチャット', '早めに寝た',
 ];
 
 const EVENING_TAGS = [
-  'ジム', '瞑想', '友人と会った', 'お笑い動画', '散歩', 'バイク', '好きな音楽', '飲酒', '仕事', 'オフィス出社',
-  'AIで遊ぶ', 'AIプロダクト開発', '英会話', '英語練習', 'ポッドキャストを聴いた', 'サウナ・マッサージ',
+  'ジム', '瞑想', '友人と会った', 'お笑い動画', '散歩', 'バイク',
+  '好きな音楽', '飲酒', '仕事', 'オフィス出社', '英語練習', '友人とチャット',
 ];
 
 interface ActivityTagsProps {
-  timing: 'morning' | 'evening';
+  timing: 'morning' | 'checkout';
   selected: string[];
   onChange: (tags: string[]) => void;
   userTags: string[];
@@ -54,6 +54,7 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
   const [inputValue, setInputValue] = useState('');
 
   const presetTags = timing === 'morning' ? MORNING_TAGS : EVENING_TAGS;
+
   const allTags = [...presetTags, ...userTags.filter(t => !presetTags.includes(t))];
 
   const toggle = (tag: string) => {

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Sun, Moon, PenLine, LogOut, User, BookOpen, ChevronDown } from 'lucide-react';
+import { Sun, Moon, PenLine, LogOut, User, BookOpen, ChevronDown, BrainCircuit } from 'lucide-react';
 import Logo from './Logo';
 import ProfileModal from './ProfileModal';
 import { useTheme } from './ThemeProvider';
@@ -61,8 +61,8 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
             {/* チェックインバッジ */}
             <div className="nav-checkin-status" style={{ display: 'flex', gap: '5px' }}>
               {([
-                { key: 'morning', done: morningDone, Icon: Sun, label: '朝' },
-                { key: 'evening', done: eveningDone, Icon: Moon, label: '夜' },
+                { key: 'morning', done: morningDone, Icon: Sun, label: 'チェックイン' },
+                { key: 'evening', done: eveningDone, Icon: Moon, label: 'チェックアウト' },
               ] as const).map(({ key, done, Icon, label }) => (
                 <span key={key} style={{
                   fontSize: '12px', padding: '4px 10px 4px 7px', borderRadius: 'var(--radius-full)',
@@ -198,6 +198,16 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
                     <span style={{ color: 'var(--text-placeholder)', display: 'flex' }}><User size={14} strokeWidth={2} /></span>
                     プロフィール
                   </button>
+
+                  <Link href="/reports" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
+                    <span style={{ ...itemStyle(false), borderTop: '1px solid var(--border-color)', display: 'flex' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                    >
+                      <span style={{ color: 'var(--text-placeholder)', display: 'flex' }}><BrainCircuit size={14} strokeWidth={2} /></span>
+                      週次レポート
+                    </span>
+                  </Link>
 
                   <Link href="/concept" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
                     <span style={{ ...itemStyle(false), borderTop: '1px solid var(--border-color)', display: 'flex' }}

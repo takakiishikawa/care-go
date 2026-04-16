@@ -19,7 +19,7 @@ export async function POST() {
 
   const { data: checkins } = await supabase
     .from('checkins')
-    .select('checked_at, timing, time_period_ratings, activity_tags, condition_score')
+    .select('checked_at, timing, time_period_ratings, activity_tags, condition_score, mind_score, body_score')
     .gte('checked_at', sevenDaysAgo.toISOString())
     .order('checked_at', { ascending: true });
 
@@ -57,24 +57,29 @@ export async function POST() {
     ? validScores.reduce((sum, c) => sum + (c.condition_score || 0), 0) / validScores.length
     : 0;
 
-  const summary = `チェックイン回数: ${checkins.length}回、平均コンディションスコア: ${avgScore.toFixed(1)}、評価分布: ${ratingText}、よく見られた活動: ${topActivities || 'なし'}`;
+  const mindScores = checkins.filter(c => c.mind_score !== null).map(c => c.mind_score as number);
+  const bodyScores = checkins.filter(c => c.body_score !== null).map(c => c.body_score as number);
+  const avgMind = mindScores.length > 0 ? (mindScores.reduce((a, b) => a + b, 0) / mindScores.length).toFixed(1) : 'データなし';
+  const avgBody = bodyScores.length > 0 ? (bodyScores.reduce((a, b) => a + b, 0) / bodyScores.length).toFixed(1) : 'データなし';
+
+  const summary = `チェックイン回数: ${checkins.length}回、平均コンディションスコア: ${avgScore.toFixed(1)}（心: ${avgMind}、体: ${avgBody}）、評価分布: ${ratingText}、よく見られた活動: ${topActivities || 'なし'}`;
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-5',
-    max_tokens: 600,
+    max_tokens: 700,
     messages: [{ role: 'user', content: summary }],
-    system: `過去7日間のコンディションデータを分析して、ユーザーへの週次インサイトを日本語で返してください。
-ポジティブな視点を基本としつつ、正直に。
+    system: `あなたはCare（ケア）というAIキャラクターです。ユーザーの過去7日間のコンディションデータを分析して、週次レポートを日本語で返してください。
+ポジティブかつ正直に、ユーザーに寄り添った文体で。簡潔に（各セクション1〜2文）。
 必ず以下の形式で3つのセクションに分けて出力してください（ラベルをそのまま使用）：
 
-【今週のまとめ】
-平均スコアとチェックイン結果の要約を1〜2文で。
+【今週のサマリー】
+平均スコア・心・体の数値と、今週全体の傾向を1〜2文で。
 
-【気づき】
-活動と体調の相関・傾向を1〜2文で。
+【パターン分析】
+活動タグ・評価分布と体調の相関・気づきを1〜2文で。特定の活動が好影響・悪影響だった場合は具体的に。
 
-【来週への提案】
-具体的なアクションを1文で。
+【来週への一言】
+データに基づいた具体的な一言アドバイス。抽象的・一般的なアドバイスは禁止。
 
 ラベル行以外はプレーンテキストのみ返してください。`,
   });

@@ -3,19 +3,19 @@ export function getHCMHour(): number {
   return (new Date().getUTCHours() + 7) % 24;
 }
 
-export type CheckinWindow = 'morning' | 'evening' | null;
+export type CheckinWindow = 'morning' | 'checkout' | null;
 
-/** 朝: 6:00-11:59 / 夜: 19:00-翌0:59 / それ以外: null */
+/** 朝: 6:00-11:59 / 夜(チェックアウト): 19:00-翌0:59 / それ以外: null */
 export function getCheckinWindow(): CheckinWindow {
   const h = getHCMHour();
   if (h >= 6 && h <= 11) return 'morning';
-  if (h >= 19 || h === 0) return 'evening';
+  if (h >= 19 || h === 0) return 'checkout';
   return null;
 }
 
-/** チェックインの朝/夜を判定（時間外でも使う） */
-export function getCheckinTiming(): 'morning' | 'evening' {
-  return getHCMHour() < 12 ? 'morning' : 'evening';
+/** チェックインの朝/チェックアウトを判定（時間外でも使う） */
+export function getCheckinTiming(): 'morning' | 'checkout' {
+  return getHCMHour() < 12 ? 'morning' : 'checkout';
 }
 
 /** HCM時間で今日が日曜か */
@@ -32,7 +32,7 @@ export function getTodayHCM(): string {
   return hcmDate.toISOString().split('T')[0];
 }
 
-/** HCM時間で過去7日の日付配列 (新しい順に逆でなく、古い→今日) */
+/** HCM時間で過去7日の日付配列 (古い→今日) */
 export function getLast7DaysHCM(): string[] {
   const days: string[] = [];
   const today = getTodayHCM();

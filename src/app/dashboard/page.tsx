@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Sun, Moon, TrendingUp, Wind } from 'lucide-react';
+import { TrendingUp, Brain, Activity } from 'lucide-react';
 import CareComment from '@/components/ui/CareComment';
 import TopNav from '@/components/ui/TopNav';
 import ScoreLineChart from '@/components/dashboard/ScoreLineChart';
@@ -49,17 +49,18 @@ export default async function DashboardPage() {
   // 今日
   const todayCheckins = (checkins || []).filter(c => c.checked_at.startsWith(today));
   const morningCheckin = todayCheckins.find(c => c.timing === 'morning');
-  const eveningCheckin = todayCheckins.find(c => c.timing === 'evening');
-  const latestCheckin = eveningCheckin || morningCheckin;
-  const ms = morningCheckin?.condition_score ?? null;
-  const es = eveningCheckin?.condition_score ?? null;
+  // backward compat: treat old 'evening' records as checkout
+  const checkoutCheckin = todayCheckins.find(c => c.timing === 'checkout' || c.timing === 'evening');
+  const latestCheckin = checkoutCheckin || morningCheckin;
   const todayScore = latestCheckin?.condition_score ?? null;
+  const todayMindScore = checkoutCheckin?.mind_score ?? null;
+  const todayBodyScore = checkoutCheckin?.body_score ?? null;
 
   // 昨日
   const yesterdayStr = last7Days[last7Days.length - 2];
   const yesterdayCheckins = (checkins || []).filter(c => c.checked_at.startsWith(yesterdayStr));
   const yesterdayLatest =
-    yesterdayCheckins.find(c => c.timing === 'evening') ||
+    yesterdayCheckins.find(c => c.timing === 'checkout' || c.timing === 'evening') ||
     yesterdayCheckins.find(c => c.timing === 'morning');
   const yesterdayScore = yesterdayLatest?.condition_score ?? null;
   const scoreDiff = todayScore !== null && yesterdayScore !== null ? todayScore - yesterdayScore : null;
@@ -67,10 +68,15 @@ export default async function DashboardPage() {
   // 7日間スコアデータ（最新チェックイン）
   const scoreData: DailyScore[] = last7Days.map(date => {
     const day = (checkins || []).filter(c => c.checked_at.startsWith(date));
-    const m = day.find(c => c.timing === 'morning')?.condition_score ?? null;
-    const e = day.find(c => c.timing === 'evening')?.condition_score ?? null;
-    const score = e ?? m;
-    return { date, score, morning_score: m, evening_score: e };
+    const checkout = day.find(c => c.timing === 'checkout' || c.timing === 'evening');
+    const morning = day.find(c => c.timing === 'morning');
+    const best = checkout || morning;
+    return {
+      date,
+      score: best?.condition_score ?? null,
+      mind_score: checkout?.mind_score ?? null,
+      body_score: checkout?.body_score ?? null,
+    };
   });
 
   const meditationData: DailyMeditation[] = last7Days.map(date => ({
@@ -94,9 +100,9 @@ export default async function DashboardPage() {
 
   const window_ = getCheckinWindow();
   const showMorningCTA = window_ === 'morning' && !morningCheckin;
-  const showEveningCTA = window_ === 'evening' && !eveningCheckin;
-  const showCTA = showMorningCTA || showEveningCTA;
-  const ctaLabel = showMorningCTA ? '朝のチェックイン' : '夜のチェックイン';
+  const showCheckoutCTA = window_ === 'checkout' && !checkoutCheckin;
+  const showCTA = showMorningCTA || showCheckoutCTA;
+  const ctaLabel = showMorningCTA ? '朝チェックイン' : '夜チェックアウト';
 
   const uniqueDays = new Set((checkins || []).map(c => c.checked_at.split('T')[0])).size;
   const hasEnoughData = uniqueDays >= 5;
@@ -129,7 +135,7 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
-      <TopNav morningDone={!!morningCheckin} eveningDone={!!eveningCheckin} profile={profile} userId={user.id} />
+      <TopNav morningDone={!!morningCheckin} eveningDone={!!checkoutCheckin} profile={profile} userId={user.id} />
 
       <main className="page-main">
 
@@ -137,7 +143,7 @@ export default async function DashboardPage() {
           <CheckinCTABanner
             greeting=""
             ctaLabel={ctaLabel}
-            timing={showMorningCTA ? 'morning' : 'evening'}
+            timing={showMorningCTA ? 'morning' : 'checkout'}
           />
         )}
 
@@ -150,7 +156,7 @@ export default async function DashboardPage() {
 
             {latestCheckin ? (
               <>
-                {/* スコア + 前日比 */}
+                {/* 総合スコア + 前日比 */}
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '16px' }}>
                   <div style={{
                     fontSize: '72px', fontWeight: 800, lineHeight: 1,
@@ -175,25 +181,25 @@ export default async function DashboardPage() {
                   </div>
                 </div>
 
-                {/* 朝・夜スコアバッジ */}
+                {/* 心スコア・体スコアバッジ */}
                 <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                   {([
-                    { Icon: Sun, label: '朝', score: ms },
-                    { Icon: Moon, label: '夜', score: es },
-                  ] as const).map(({ Icon, label, score }) => (
+                    { Icon: Brain, label: '心', score: todayMindScore, color: 'var(--text-amber)', bg: 'var(--bg-amber)', border: 'var(--border-amber)' },
+                    { Icon: Activity, label: '体', score: todayBodyScore, color: 'var(--text-green)', bg: 'var(--bg-green)', border: 'var(--border-green)' },
+                  ] as const).map(({ Icon, label, score, color, bg, border }) => (
                     <div key={label} style={{
                       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '10px 14px', borderRadius: 'var(--radius-md)',
-                      background: 'var(--bg-subtle)',
-                      border: '1px solid var(--border-color)',
+                      background: score !== null ? bg : 'var(--bg-subtle)',
+                      border: `1px solid ${score !== null ? border : 'var(--border-color)'}`,
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <Icon size={13} strokeWidth={2} color="var(--text-placeholder)" />
-                        <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
+                        <Icon size={13} strokeWidth={2} color={score !== null ? color : 'var(--text-placeholder)'} />
+                        <span style={{ fontSize: '13px', color: score !== null ? color : 'var(--text-muted)', fontWeight: 500 }}>{label}</span>
                       </div>
                       <span style={{
                         fontSize: '17px', fontWeight: 700, letterSpacing: '-0.03em',
-                        color: score !== null ? 'var(--text-primary)' : 'var(--text-placeholder)',
+                        color: score !== null ? color : 'var(--text-placeholder)',
                       }}>
                         {score ?? '–'}
                       </span>
@@ -201,7 +207,7 @@ export default async function DashboardPage() {
                   ))}
                 </div>
 
-                {/* AIひとこと */}
+                {/* Careのひとこと */}
                 {latestCheckin.ai_comment && (
                   <div style={{
                     borderTop: '1px solid var(--border-color)', paddingTop: '16px', flex: 1,
@@ -262,32 +268,32 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* 瞑想カード */}
-        <div style={{ ...card, marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <p style={{ ...sectionLabel, marginBottom: 0 }}>
-              <Wind size={13} strokeWidth={2} style={{ display: 'inline', marginRight: '5px', verticalAlign: '-2px' }} />
-              瞑想（7日間）
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-placeholder)' }}>今週</span>
-              <span style={{
-                fontSize: '15px', fontWeight: 700, color: totalMeditations > 0 ? 'var(--accent-amber)' : 'var(--text-placeholder)',
-                letterSpacing: '-0.02em',
-              }}>
-                {totalMeditations}回
-              </span>
+        {/* 下段：左（瞑想）| 右（週次レポート） */}
+        <div className="dashboard-grid">
+          {/* 左：瞑想ドット */}
+          <div style={card}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <p style={{ ...sectionLabel, marginBottom: 0 }}>瞑想（7日間）</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '13px', color: 'var(--text-placeholder)' }}>今週</span>
+                <span style={{
+                  fontSize: '15px', fontWeight: 700, color: totalMeditations > 0 ? 'var(--accent-amber)' : 'var(--text-placeholder)',
+                  letterSpacing: '-0.02em',
+                }}>
+                  {totalMeditations}回
+                </span>
+              </div>
             </div>
+            <MeditationDots data={meditationData} />
           </div>
-          <MeditationDots data={meditationData} />
-        </div>
 
-        {/* 週次インサイト */}
-        <WeeklyInsightCard
-          insight={weeklyInsight}
-          thisWeekAvg={thisWeekAvg}
-          lastWeekAvg={lastWeekAvg}
-        />
+          {/* 右：週次レポートプレビュー */}
+          <WeeklyInsightCard
+            insight={weeklyInsight}
+            thisWeekAvg={thisWeekAvg}
+            lastWeekAvg={lastWeekAvg}
+          />
+        </div>
       </main>
 
       <InsightPopup weekStartStr={weekStartStr} hasEnoughData={hasEnoughData} />

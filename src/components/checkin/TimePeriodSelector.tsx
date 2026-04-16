@@ -43,13 +43,14 @@ const RATING_META: Array<{
 ];
 
 interface TimePeriodSelectorProps {
-  timing: CheckinTiming;
+  timing: 'morning' | 'checkout';
   ratings: TimePeriodRatings;
   onChange: (ratings: TimePeriodRatings) => void;
 }
 
 export default function TimePeriodSelector({ timing, ratings, onChange }: TimePeriodSelectorProps) {
   const periods = timing === 'morning' ? MORNING_PERIODS : EVENING_PERIODS;
+
 
   const handleSelect = (periodKey: string, rating: Rating) => {
     onChange({ ...ratings, [periodKey]: rating });

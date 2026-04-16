@@ -6,7 +6,7 @@ import { Sun, Moon, PenLine } from 'lucide-react';
 interface CheckinCTABannerProps {
   greeting: string;
   ctaLabel: string;
-  timing: 'morning' | 'evening';
+  timing: 'morning' | 'checkout';
 }
 
 export default function CheckinCTABanner({ greeting, ctaLabel, timing }: CheckinCTABannerProps) {

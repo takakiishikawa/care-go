@@ -21,39 +21,45 @@ export default async function CheckinPage() {
   ]);
 
   const morningDone = (todayCheckins || []).some(c => c.timing === 'morning');
-  const eveningDone = (todayCheckins || []).some(c => c.timing === 'evening');
+  // 後方互換: 旧データ 'evening' も checkout 扱い
+  const checkoutDone = (todayCheckins || []).some(c => c.timing === 'checkout' || c.timing === 'evening');
   const timing = getCheckinTiming();
-  const alreadyDone = timing === 'morning' ? morningDone : eveningDone;
+  const alreadyDone = timing === 'morning' ? morningDone : checkoutDone;
+
+  const isMorning = timing === 'morning';
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
-      <TopNav morningDone={morningDone} eveningDone={eveningDone} profile={profile} userId={user.id} />
+      <TopNav morningDone={morningDone} eveningDone={checkoutDone} profile={profile} userId={user.id} />
 
       <main className="checkin-main">
         {alreadyDone ? (
           <div style={{
-            background: 'var(--bg-card)', border: '0.5px solid var(--border-color)',
-            borderRadius: '14px', padding: '48px 32px',
+            background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-xl)', padding: '48px 32px',
             boxShadow: 'var(--shadow-card)', textAlign: 'center',
           }}>
             <div style={{
-              width: '60px', height: '60px', background: 'var(--bg-green)', borderRadius: '50%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+              width: '64px', height: '64px', background: 'var(--bg-green)', borderRadius: 'var(--radius-full)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px',
+              boxShadow: 'var(--shadow-green)',
             }}>
-              <CheckCircle size={28} strokeWidth={1.8} color="var(--accent-green)" />
+              <CheckCircle size={28} strokeWidth={2} color="var(--accent-green)" />
             </div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-green-dark)', marginBottom: '12px' }}>
-              {timing === 'morning' ? '朝のチェックイン' : '夜のチェックイン'}は完了済みです
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+              {isMorning ? '朝チェックイン' : '夜チェックアウト'}は完了済みです
             </h2>
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-              {timing === 'morning' && !eveningDone
-                ? '夜のチェックインは夜以降にできます。'
-                : '今日のチェックインは完了しています。お疲れさまでした。'}
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: '28px' }}>
+              {isMorning && !checkoutDone
+                ? '夜チェックアウトは19時以降にできます。'
+                : '今日のチェックイン・アウトは完了しています。'}
             </p>
             <Link href="/dashboard" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '24px',
-              background: 'var(--accent-green)', color: 'white', borderRadius: '10px',
-              padding: '11px 24px', fontSize: '16px', fontWeight: 500, textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: '7px',
+              background: 'var(--gradient-green)', color: 'white',
+              borderRadius: 'var(--radius-md)', padding: '12px 24px',
+              fontSize: '15px', fontWeight: 600, textDecoration: 'none',
+              boxShadow: 'var(--shadow-green)', letterSpacing: '-0.02em',
             }}>
               <LayoutDashboard size={15} strokeWidth={2} />
               ダッシュボードへ

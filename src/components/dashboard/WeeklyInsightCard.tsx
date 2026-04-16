@@ -14,9 +14,13 @@ interface InsightSections {
 }
 
 function parseInsightSections(text: string): InsightSections | null {
-  const summaryMatch = text.match(/【今週のまとめ】\s*([\s\S]*?)(?=【気づき】|$)/);
-  const insightMatch = text.match(/【気づき】\s*([\s\S]*?)(?=【来週への提案】|$)/);
-  const suggestionMatch = text.match(/【来週への提案】\s*([\s\S]*?)$/);
+  // new format
+  const summaryMatch = text.match(/【今週のサマリー】\s*([\s\S]*?)(?=【パターン分析】|【来週への一言】|$)/)
+    ?? text.match(/【今週のまとめ】\s*([\s\S]*?)(?=【気づき】|【来週への提案】|$)/);
+  const insightMatch = text.match(/【パターン分析】\s*([\s\S]*?)(?=【来週への一言】|$)/)
+    ?? text.match(/【気づき】\s*([\s\S]*?)(?=【来週への提案】|$)/);
+  const suggestionMatch = text.match(/【来週への一言】\s*([\s\S]*?)$/)
+    ?? text.match(/【来週への提案】\s*([\s\S]*?)$/);
 
   if (!summaryMatch && !insightMatch && !suggestionMatch) return null;
 
@@ -30,7 +34,7 @@ function parseInsightSections(text: string): InsightSections | null {
 const SECTION_META = [
   {
     key: 'summary' as const,
-    label: '今週のまとめ',
+    label: '今週のサマリー',
     Icon: TrendingUp,
     color: 'var(--text-green)',
     bg: 'var(--bg-green)',
@@ -38,7 +42,7 @@ const SECTION_META = [
   },
   {
     key: 'insight' as const,
-    label: '気づき',
+    label: 'パターン分析',
     Icon: Lightbulb,
     color: 'var(--text-amber)',
     bg: 'var(--bg-amber)',
@@ -46,7 +50,7 @@ const SECTION_META = [
   },
   {
     key: 'suggestion' as const,
-    label: '来週への提案',
+    label: '来週への一言',
     Icon: ArrowRight,
     color: 'var(--text-green)',
     bg: 'var(--bg-green)',
