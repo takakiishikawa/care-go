@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { BarChart2, Tag, NotebookPen, Loader2, Activity, Mic, MicOff } from 'lucide-react';
+import { Tag, NotebookPen, Loader2, Activity, Mic, MicOff, BarChart2 } from 'lucide-react';
 import TimePeriodSelector from './TimePeriodSelector';
 import ActivityTags from './ActivityTags';
 import { createClient } from '@/lib/supabase/client';
@@ -10,6 +10,26 @@ import { TimePeriodRatings } from '@/lib/types';
 
 interface CheckinFormProps {
   timing: 'morning' | 'evening';
+}
+
+function SectionHeader({ icon, label, optional = false }: { icon: React.ReactNode; label: string; optional?: boolean }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+      <div style={{
+        width: '28px', height: '28px', borderRadius: 'var(--radius-sm)',
+        background: 'var(--bg-green)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+        {icon}
+      </div>
+      <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '-0.01em' }}>
+        {label}
+      </span>
+      {optional && (
+        <span style={{ fontSize: '12px', color: 'var(--text-placeholder)', fontWeight: 400 }}>任意</span>
+      )}
+    </div>
+  );
 }
 
 export default function CheckinForm({ timing }: CheckinFormProps) {
@@ -20,8 +40,6 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   const [freeText, setFreeText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [btnHovered, setBtnHovered] = useState(false);
-  const [btnPressed, setBtnPressed] = useState(false);
 
   // 音声入力
   interface SREvent { resultIndex: number; results: SpeechRecognitionResultList }
@@ -46,18 +64,15 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
 
   const toggleRecording = useCallback(() => {
     if (isRecording) { stopRecording(); return; }
-
     const w = window as unknown as Record<string, new () => SR>;
     const SRClass = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!SRClass) return;
-
     baseTextRef.current = freeText;
     const rec = new SRClass();
     rec.lang = 'ja-JP';
     rec.interimResults = true;
     rec.continuous = true;
     rec.maxAlternatives = 1;
-
     rec.onresult = (event: SREvent) => {
       let interim = '';
       let finalTranscript = '';
@@ -66,46 +81,29 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         if (event.results[i].isFinal) finalTranscript += t;
         else interim += t;
       }
-      if (finalTranscript) {
-        baseTextRef.current = (baseTextRef.current + finalTranscript).trimStart();
-      }
+      if (finalTranscript) baseTextRef.current = (baseTextRef.current + finalTranscript).trimStart();
       setFreeText((baseTextRef.current + interim).trimStart());
     };
-
     rec.onerror = () => stopRecording();
-    rec.onend = () => {
-      setFreeText(baseTextRef.current);
-      setIsRecording(false);
-      recognitionRef.current = null;
-    };
-
+    rec.onend = () => { setFreeText(baseTextRef.current); setIsRecording(false); recognitionRef.current = null; };
     recognitionRef.current = rec;
     rec.start();
     setIsRecording(true);
   }, [isRecording, freeText, stopRecording]);
 
-  const greeting = timing === 'morning'
-    ? 'おはようございます。今朝の状態は？'
-    : 'お疲れさまでした。今日一日はどうでしたか？';
-
   const activityLabel = timing === 'morning' ? '昨夜の活動' : '今日の活動';
-
   const expectedPeriods = timing === 'morning'
     ? ['last_night', 'this_morning']
     : ['morning', 'afternoon', 'evening', 'night'];
-
   const isValid = expectedPeriods.every(p => ratings[p] !== undefined);
 
-  // ユーザーのカスタム活動タグを取得
   useEffect(() => {
     const supabase = createClient();
     supabase
       .from('user_tags')
       .select('tag_name')
       .eq('tag_type', timing === 'morning' ? 'morning_activity' : 'evening_activity')
-      .then(({ data }) => {
-        if (data) setUserActivityTags(data.map(r => r.tag_name));
-      });
+      .then(({ data }) => { if (data) setUserActivityTags(data.map(r => r.tag_name)); });
   }, [timing]);
 
   const handleAddUserTag = async (tag: string) => {
@@ -125,12 +123,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
       const res = await fetch('/api/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          timing,
-          time_period_ratings: ratings,
-          activity_tags: activityTags,
-          free_text: freeText || null,
-        }),
+        body: JSON.stringify({ timing, time_period_ratings: ratings, activity_tags: activityTags, free_text: freeText || null }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || '送信に失敗しました'); return; }
@@ -147,45 +140,67 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
     }
   };
 
+  const isMorning = timing === 'morning';
+
   return (
     <div>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px', lineHeight: 1.3 }}>
-          {greeting}
-        </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>
-          {timing === 'morning' ? '☀️ 朝のチェックイン' : '🌙 夜のチェックイン'}
-        </p>
+      {/* ページヘッダー */}
+      <div style={{ marginBottom: '28px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+          <div style={{
+            width: '36px', height: '36px', borderRadius: 'var(--radius-md)',
+            background: isMorning ? 'var(--bg-green)' : 'linear-gradient(135deg, #1E293B, #0F172A)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: '18px' }}>{isMorning ? '☀️' : '🌙'}</span>
+          </div>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.03em' }}>
+              {isMorning ? '朝のチェックイン' : '夜のチェックイン'}
+            </h1>
+            <p style={{ fontSize: '13px', color: 'var(--text-placeholder)', margin: 0, letterSpacing: '-0.01em' }}>
+              {isMorning ? '今朝の状態を記録しましょう' : '今日一日を振り返りましょう'}
+            </p>
+          </div>
+        </div>
       </div>
 
+      {/* メインカード */}
       <div className="checkin-card" style={{
-        background: 'var(--bg-card)', border: '0.5px solid var(--border-color)',
-        borderRadius: '14px', padding: '32px',
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border-color)',
+        borderRadius: 'var(--radius-xl)',
+        padding: '28px 32px',
         boxShadow: 'var(--shadow-card)',
+        display: 'flex', flexDirection: 'column', gap: '28px',
       }}>
         {/* 時間帯別コンディション */}
-        <section style={{ marginBottom: '28px' }}>
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '16px',
-          }}>
-            <BarChart2 size={15} strokeWidth={2} color="var(--accent-green)" />
-            時間帯別コンディション
-            <span style={{ color: 'var(--text-error)', fontWeight: 400 }}>*</span>
-          </label>
+        <section>
+          <SectionHeader
+            icon={<BarChart2 size={14} strokeWidth={2.2} color="var(--accent-green)" />}
+            label="時間帯別コンディション"
+          />
           <TimePeriodSelector timing={timing} ratings={ratings} onChange={setRatings} />
+          {!isValid && (
+            <p style={{
+              fontSize: '12px', color: 'var(--text-placeholder)', marginTop: '10px',
+              display: 'flex', alignItems: 'center', gap: '4px',
+            }}>
+              <span style={{ fontSize: '10px' }}>●</span> すべての時間帯を選択してください
+            </p>
+          )}
         </section>
 
+        {/* 区切り線 */}
+        <div style={{ borderTop: '1px solid var(--border-color)', margin: '0 -4px' }} />
+
         {/* 活動タグ */}
-        <section style={{ marginBottom: '28px' }}>
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
-          }}>
-            <Activity size={15} strokeWidth={2} color="var(--accent-amber)" />
-            {activityLabel}
-            <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>複数選択可・任意</span>
-          </label>
+        <section>
+          <SectionHeader
+            icon={<Activity size={14} strokeWidth={2.2} color="var(--accent-amber)" />}
+            label={activityLabel}
+            optional
+          />
           <ActivityTags
             timing={timing}
             selected={activityTags}
@@ -195,55 +210,76 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           />
         </section>
 
-        {/* 自由テキスト */}
-        <section style={{ marginBottom: '32px' }}>
-          <label style={{
-            display: 'flex', alignItems: 'center', gap: '7px',
-            fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '14px',
-          }}>
-            <NotebookPen size={15} strokeWidth={2} color="var(--accent-green)" />
-            メモ
-            <span style={{ fontWeight: 400, color: 'var(--text-placeholder)', fontSize: '13px' }}>任意</span>
+        {/* 区切り線 */}
+        <div style={{ borderTop: '1px solid var(--border-color)', margin: '0 -4px' }} />
+
+        {/* メモ */}
+        <section>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+            <SectionHeader
+              icon={<NotebookPen size={14} strokeWidth={2.2} color="var(--accent-green)" />}
+              label="メモ"
+              optional
+            />
             {isRecording && (
-              <span style={{ fontSize: '12px', color: '#E05040', fontWeight: 500, marginLeft: '4px', animation: 'pulse 1s ease-in-out infinite' }}>
-                ● 録音中
+              <span style={{
+                fontSize: '12px', color: '#EF4444', fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: '4px',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
+                録音中
               </span>
             )}
-          </label>
+          </div>
           <div style={{ position: 'relative' }}>
             <textarea
               value={freeText}
               onChange={e => { if (!isRecording) setFreeText(e.target.value); }}
-              placeholder="今の気持ちを自由に（省略OK）"
+              placeholder="今の気持ちを自由に…"
               rows={3}
               style={{
-                width: '100%', border: `0.5px solid ${isRecording ? '#E05040' : 'var(--border-color)'}`,
-                borderRadius: '10px', padding: '12px 48px 12px 14px',
-                fontSize: '16px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
+                width: '100%',
+                border: `1px solid ${isRecording ? '#EF4444' : 'var(--border-color)'}`,
+                borderRadius: 'var(--radius-lg)', padding: '12px 48px 12px 16px',
+                fontSize: '15px', color: 'var(--text-secondary)', background: 'var(--bg-subtle)',
                 resize: 'none', outline: 'none', fontFamily: 'inherit',
-                lineHeight: 1.6, boxSizing: 'border-box', transition: 'all 0.15s ease',
-                boxShadow: isRecording ? '0 0 0 3px rgba(224,80,64,0.15)' : 'none',
+                lineHeight: 1.7, boxSizing: 'border-box', transition: 'all 0.15s ease',
+                boxShadow: isRecording ? '0 0 0 3px rgba(239,68,68,0.15)' : 'none',
+                letterSpacing: '-0.01em',
               }}
-              onFocus={e => { if (!isRecording) { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(45,138,95,0.15)'; } }}
-              onBlur={e => { if (!isRecording) { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; } }}
+              onFocus={e => {
+                if (!isRecording) {
+                  e.target.style.borderColor = 'var(--accent-green)';
+                  e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.12)';
+                  e.target.style.background = 'var(--bg-card)';
+                }
+              }}
+              onBlur={e => {
+                if (!isRecording) {
+                  e.target.style.borderColor = 'var(--border-color)';
+                  e.target.style.boxShadow = 'none';
+                  e.target.style.background = 'var(--bg-subtle)';
+                }
+              }}
             />
             {speechSupported && (
               <button
                 type="button"
                 onClick={toggleRecording}
-                title={isRecording ? '録音を停止' : '音声入力を開始'}
+                title={isRecording ? '録音を停止' : '音声入力'}
                 style={{
                   position: 'absolute', right: '10px', bottom: '10px',
-                  width: '32px', height: '32px', borderRadius: '50%',
+                  width: '32px', height: '32px', borderRadius: 'var(--radius-full)',
                   border: 'none',
-                  background: isRecording ? '#E05040' : 'var(--bg-subtle)',
+                  background: isRecording ? '#EF4444' : 'var(--bg-muted)',
                   color: isRecording ? 'white' : 'var(--text-placeholder)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer', transition: 'all 0.15s ease',
-                  boxShadow: isRecording ? '0 2px 8px rgba(224,80,64,0.4)' : 'none',
+                  boxShadow: isRecording ? '0 2px 8px rgba(239,68,68,0.40)' : 'none',
                 }}
-                onMouseEnter={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-muted)'; }}
-                onMouseLeave={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                onMouseEnter={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                onMouseLeave={e => { if (!isRecording) (e.currentTarget as HTMLElement).style.background = 'var(--bg-muted)'; }}
               >
                 {isRecording ? <MicOff size={15} strokeWidth={2} /> : <Mic size={15} strokeWidth={2} />}
               </button>
@@ -251,43 +287,60 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           </div>
         </section>
 
+        {/* エラー */}
         {error && (
-          <div style={{ color: 'var(--text-error)', fontSize: '14px', marginBottom: '16px', background: 'var(--bg-amber)', padding: '10px 14px', borderRadius: '8px' }}>
+          <div style={{
+            color: 'var(--text-error)', fontSize: '14px',
+            background: '#FEF2F2', padding: '12px 16px', borderRadius: 'var(--radius-md)',
+            border: '1px solid #FECACA', display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            <span style={{ fontSize: '16px' }}>⚠️</span>
             {error}
           </div>
         )}
 
+        {/* 送信ボタン */}
         <button
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting}
-          onMouseEnter={() => setBtnHovered(true)}
-          onMouseLeave={() => { setBtnHovered(false); setBtnPressed(false); }}
-          onMouseDown={() => setBtnPressed(true)}
-          onMouseUp={() => setBtnPressed(false)}
           style={{
             width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            background: isValid ? (btnHovered ? 'var(--accent-green-hover)' : 'var(--accent-green)') : 'var(--border-muted)',
-            color: 'white', border: 'none', borderRadius: '10px',
-            padding: '14px 24px', fontSize: '16px', fontWeight: 500,
+            background: isValid && !isSubmitting ? 'var(--gradient-green)' : 'var(--bg-muted)',
+            color: isValid ? 'white' : 'var(--text-placeholder)',
+            border: 'none', borderRadius: 'var(--radius-lg)',
+            padding: '15px 24px', fontSize: '16px', fontWeight: 700,
             cursor: isValid && !isSubmitting ? 'pointer' : 'not-allowed',
-            transform: btnPressed && isValid ? 'scale(0.97)' : 'scale(1)',
-            transition: 'all 0.15s ease',
+            transition: 'all 0.2s ease',
+            boxShadow: isValid && !isSubmitting ? 'var(--shadow-green)' : 'none',
+            letterSpacing: '-0.02em',
           }}
+          onMouseEnter={e => {
+            if (isValid && !isSubmitting) {
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(16,185,129,0.40)';
+            }
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+            (e.currentTarget as HTMLElement).style.boxShadow = isValid && !isSubmitting ? 'var(--shadow-green)' : 'none';
+          }}
+          onMouseDown={e => { if (isValid) (e.currentTarget as HTMLElement).style.transform = 'scale(0.98)'; }}
+          onMouseUp={e => { if (isValid) (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
         >
-          {isSubmitting
-            ? <><Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} /> コメントを生成しています…</>
-            : '記録する'
-          }
+          {isSubmitting ? (
+            <>
+              <Loader2 size={16} strokeWidth={2} style={{ animation: 'spin 1s linear infinite' }} />
+              AIコメントを生成中…
+            </>
+          ) : (
+            '記録する →'
+          )}
         </button>
-
-        {!isValid && (
-          <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--text-placeholder)', marginTop: '10px' }}>
-            すべての時間帯を選択してください
-          </p>
-        )}
       </div>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }

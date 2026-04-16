@@ -21,14 +21,13 @@ const EVENING_PERIODS: Period[] = [
   { key: 'night', label: '夜', Icon: MoonStar },
 ];
 
-// 時間帯ごとの [A評価ラベル, B評価ラベル, C評価ラベル]
 const PERIOD_LABELS: Record<string, [string, string, string]> = {
-  last_night:   ['ぐっすり眠れた',     'まあまあだった', 'あまり眠れなかった'],
-  this_morning: ['すっきり起きられた', '普通',          'だるかった'],
-  morning:      ['集中できた',         '普通',          '集中できなかった'],
-  afternoon:    ['エネルギーがあった', '普通',          'エネルギーが落ちていた'],
-  evening:      ['すっきりしていた',   '普通',          '疲労感があった'],
-  night:        ['落ち着いていた',     '普通',          'ざわざわしていた'],
+  last_night:   ['ぐっすり眠れた',     'まあまあだった',    'あまり眠れなかった'],
+  this_morning: ['すっきり起きられた', '普通',              'だるかった'],
+  morning:      ['集中できた',          '普通',              '集中できなかった'],
+  afternoon:    ['エネルギーがあった',  '普通',              'エネルギー低め'],
+  evening:      ['すっきりしていた',    '普通',              '疲労感があった'],
+  night:        ['落ち着いていた',      '普通',              'ざわざわしていた'],
 };
 
 const RATING_META: Array<{
@@ -38,9 +37,9 @@ const RATING_META: Array<{
   selectedBg: string;
   selectedBorder: string;
 }> = [
-  { value: 'A', Icon: TrendingUp,   selectedColor: 'var(--text-green)', selectedBg: 'var(--bg-green)', selectedBorder: 'var(--border-green)' },
-  { value: 'B', Icon: Minus,        selectedColor: 'var(--text-muted)',  selectedBg: 'var(--bg-muted)', selectedBorder: 'var(--border-muted)' },
-  { value: 'C', Icon: TrendingDown, selectedColor: 'var(--text-amber)',  selectedBg: 'var(--bg-amber)', selectedBorder: 'var(--border-amber)' },
+  { value: 'A', Icon: TrendingUp,   selectedColor: 'var(--text-green)',  selectedBg: 'var(--bg-green)',  selectedBorder: 'var(--border-green)' },
+  { value: 'B', Icon: Minus,        selectedColor: 'var(--text-muted)',  selectedBg: 'var(--bg-subtle)', selectedBorder: 'var(--border-muted)' },
+  { value: 'C', Icon: TrendingDown, selectedColor: 'var(--text-amber)',  selectedBg: 'var(--bg-amber)',  selectedBorder: 'var(--border-amber)' },
 ];
 
 interface TimePeriodSelectorProps {
@@ -57,24 +56,34 @@ export default function TimePeriodSelector({ timing, ratings, onChange }: TimePe
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {periods.map(({ key, label, Icon }) => {
         const selected = ratings[key] as Rating | undefined;
         const periodLabels = PERIOD_LABELS[key] ?? ['良い', '普通', '悪い'];
         return (
-          <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div key={key} style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            padding: '12px 14px', borderRadius: 'var(--radius-lg)',
+            background: selected ? 'var(--bg-subtle)' : 'transparent',
+            border: `1px solid ${selected ? 'var(--border-color-hover)' : 'var(--border-color)'}`,
+            transition: 'all 0.15s ease',
+          }}>
             {/* 時間帯ラベル */}
             <div style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              minWidth: '52px', flexShrink: 0,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+              minWidth: '44px', flexShrink: 0,
             }}>
-              <Icon size={15} strokeWidth={1.8} color="var(--text-placeholder)" />
-              <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              <Icon size={16} strokeWidth={1.8} color={selected ? 'var(--accent-green)' : 'var(--text-placeholder)'} />
+              <span style={{
+                fontSize: '12px', fontWeight: 600,
+                color: selected ? 'var(--text-green)' : 'var(--text-placeholder)',
+                letterSpacing: '-0.01em',
+              }}>
                 {label}
               </span>
             </div>
 
-            {/* 評価ボタン */}
+            {/* 評価ボタン群 */}
             <div style={{ display: 'flex', gap: '6px', flex: 1 }}>
               {RATING_META.map(({ value, Icon: RIcon, selectedColor, selectedBg, selectedBorder }, idx) => {
                 const isSelected = selected === value;
@@ -87,22 +96,23 @@ export default function TimePeriodSelector({ timing, ratings, onChange }: TimePe
                     style={{
                       flex: 1,
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                      padding: '9px 6px',
-                      border: `0.5px solid ${isSelected ? selectedBorder : 'var(--border-color)'}`,
-                      borderRadius: '10px',
-                      background: isSelected ? selectedBg : 'var(--bg-subtle)',
+                      padding: '8px 4px',
+                      border: `1px solid ${isSelected ? selectedBorder : 'var(--border-color)'}`,
+                      borderRadius: 'var(--radius-md)',
+                      background: isSelected ? selectedBg : 'var(--bg-card)',
                       color: isSelected ? selectedColor : 'var(--text-placeholder)',
-                      fontSize: '13px', fontWeight: isSelected ? 600 : 400,
+                      fontSize: '12px', fontWeight: isSelected ? 700 : 400,
                       cursor: 'pointer',
                       transition: 'all 0.12s ease',
-                      transform: isSelected ? 'scale(1.04)' : 'scale(1)',
-                      boxShadow: isSelected ? `0 0 0 1.5px ${selectedBorder}` : 'none',
+                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
+                      boxShadow: isSelected ? `0 0 0 2px ${selectedBorder}` : 'none',
                       textAlign: 'center' as const,
                       lineHeight: 1.3,
                       wordBreak: 'break-all' as const,
+                      letterSpacing: '-0.01em',
                     }}
                   >
-                    <RIcon size={12} strokeWidth={2} color={isSelected ? selectedColor : 'var(--text-placeholder)'} />
+                    <RIcon size={11} strokeWidth={2.2} color={isSelected ? selectedColor : 'var(--text-placeholder)'} />
                     <span style={{ minWidth: 0 }}>{btnLabel}</span>
                   </button>
                 );

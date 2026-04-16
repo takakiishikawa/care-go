@@ -1,5 +1,11 @@
-import { BrainCircuit } from 'lucide-react';
+import { BrainCircuit, TrendingUp, Lightbulb, ArrowRight } from 'lucide-react';
 import { WeeklyInsight } from '@/lib/types';
+
+interface WeeklyInsightCardProps {
+  insight: WeeklyInsight | null;
+  thisWeekAvg: number | null;
+  lastWeekAvg: number | null;
+}
 
 interface InsightSections {
   summary: string;
@@ -21,11 +27,32 @@ function parseInsightSections(text: string): InsightSections | null {
   };
 }
 
-interface WeeklyInsightCardProps {
-  insight: WeeklyInsight | null;
-  thisWeekAvg: number | null;
-  lastWeekAvg: number | null;
-}
+const SECTION_META = [
+  {
+    key: 'summary' as const,
+    label: '今週のまとめ',
+    Icon: TrendingUp,
+    color: 'var(--text-green)',
+    bg: 'var(--bg-green)',
+    border: 'var(--border-green)',
+  },
+  {
+    key: 'insight' as const,
+    label: '気づき',
+    Icon: Lightbulb,
+    color: 'var(--text-amber)',
+    bg: 'var(--bg-amber)',
+    border: 'var(--border-amber)',
+  },
+  {
+    key: 'suggestion' as const,
+    label: '来週への提案',
+    Icon: ArrowRight,
+    color: 'var(--text-green)',
+    bg: 'var(--bg-green)',
+    border: 'var(--border-green)',
+  },
+];
 
 export default function WeeklyInsightCard({ insight, thisWeekAvg, lastWeekAvg }: WeeklyInsightCardProps) {
   const weekDiff = thisWeekAvg !== null && lastWeekAvg !== null
@@ -34,91 +61,123 @@ export default function WeeklyInsightCard({ insight, thisWeekAvg, lastWeekAvg }:
 
   return (
     <div style={{
-      background: 'var(--bg-card)', border: '0.5px solid var(--border-color)',
-      borderRadius: '14px', padding: '24px',
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-color)',
+      borderRadius: 'var(--radius-xl)',
+      padding: '24px',
       boxShadow: 'var(--shadow-card)',
     }}>
+      {/* ヘッダー */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginBottom: '16px',
+        marginBottom: '20px',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'var(--text-placeholder)', fontWeight: 500 }}>
-          <BrainCircuit size={16} strokeWidth={1.8} color="var(--text-placeholder)" />
-          週次レポート
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '32px', height: '32px', borderRadius: 'var(--radius-md)',
+            background: 'var(--bg-purple)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <BrainCircuit size={16} strokeWidth={1.8} color="var(--accent-green)" />
+          </div>
+          <div>
+            <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '-0.01em', margin: 0 }}>
+              週次レポート
+            </p>
+            {weekDiff !== null && (
+              <p style={{ fontSize: '12px', color: weekDiff > 0 ? 'var(--text-green)' : weekDiff < 0 ? 'var(--text-amber)' : 'var(--text-placeholder)', margin: 0 }}>
+                {weekDiff > 0
+                  ? `先週より+${weekDiff}pt 上向き`
+                  : weekDiff < 0
+                    ? `先週より${weekDiff}pt`
+                    : '先週と同水準'}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* 週平均比較バッジ */}
+        {/* 週平均バッジ */}
         {thisWeekAvg !== null && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>
-              今週平均 <span style={{ color: 'var(--text-green)', fontWeight: 600 }}>{Math.round(thisWeekAvg)}</span>
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              textAlign: 'right',
+              padding: '6px 14px', borderRadius: 'var(--radius-md)',
+              background: 'var(--bg-green)', border: '1px solid var(--border-green)',
+            }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-green)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>今週平均</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-green)', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                {Math.round(thisWeekAvg)}
+              </div>
+            </div>
             {lastWeekAvg !== null && (
-              <>
-                <span style={{ fontSize: '14px', color: 'var(--text-placeholder)' }}>
-                  先週 <span style={{ fontWeight: 500 }}>{Math.round(lastWeekAvg)}</span>
-                </span>
-                {weekDiff !== null && weekDiff !== 0 && (
-                  <span style={{
-                    fontSize: '14px', fontWeight: 600,
-                    color: weekDiff > 0 ? 'var(--accent-green)' : 'var(--accent-amber)',
-                    background: weekDiff > 0 ? 'var(--bg-green)' : 'var(--bg-amber)',
-                    border: `0.5px solid ${weekDiff > 0 ? 'var(--border-green)' : 'var(--border-amber)'}`,
-                    padding: '2px 8px', borderRadius: '9999px',
-                  }}>
-                    {weekDiff > 0 ? `+${weekDiff}` : weekDiff}
-                  </span>
-                )}
-              </>
+              <div style={{ textAlign: 'right', padding: '6px 14px', borderRadius: 'var(--radius-md)', background: 'var(--bg-subtle)', border: '1px solid var(--border-color)' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-placeholder)', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>先週</div>
+                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                  {Math.round(lastWeekAvg)}
+                </div>
+              </div>
             )}
           </div>
         )}
       </div>
 
+      {/* 本文 */}
       {insight ? (() => {
         const sections = parseInsightSections(insight.insight_text);
-        return (
-          <div>
-            {weekDiff !== null && (
-              <p style={{ fontSize: '14px', color: weekDiff > 0 ? 'var(--text-green)' : 'var(--text-amber)', marginBottom: '14px', fontWeight: 500 }}>
-                {weekDiff > 0
-                  ? `先週より平均+${weekDiff}ポイント、調子が上向いています`
-                  : weekDiff < 0
-                    ? `先週より平均${weekDiff}ポイント、無理しすぎていないか振り返ってみましょう`
-                    : '先週と同じペースで維持できています'}
-              </p>
-            )}
-            {sections ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                {[
-                  { label: '今週のまとめ', text: sections.summary },
-                  { label: '気づき', text: sections.insight },
-                  { label: '来週への提案', text: sections.suggestion },
-                ].map(({ label, text }, i) => text && (
-                  <div key={label}>
-                    {i > 0 && <div style={{ borderTop: '0.5px solid var(--border-color)', margin: '12px 0' }} />}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-placeholder)', letterSpacing: '0.03em' }}>
-                        【{label}】
-                      </span>
-                      <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.75, margin: 0 }}>
-                        {text}
-                      </p>
-                    </div>
+        return sections ? (
+          <div style={{ display: 'grid', gap: '12px' }}>
+            {SECTION_META.map(({ key, label, Icon, color, bg, border }) => {
+              const text = sections[key];
+              if (!text) return null;
+              return (
+                <div key={key} style={{
+                  display: 'flex', gap: '12px', alignItems: 'flex-start',
+                  padding: '14px 16px', borderRadius: 'var(--radius-lg)',
+                  background: bg, border: `1px solid ${border}`,
+                }}>
+                  <div style={{
+                    width: '28px', height: '28px', borderRadius: 'var(--radius-sm)',
+                    background: 'var(--bg-card)', flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: 'var(--shadow-xs)',
+                    marginTop: '1px',
+                  }}>
+                    <Icon size={14} strokeWidth={2} color={color} />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
-                {insight.insight_text}
-              </p>
-            )}
+                  <div>
+                    <p style={{
+                      fontSize: '11px', fontWeight: 700, color, letterSpacing: '0.05em',
+                      textTransform: 'uppercase', marginBottom: '4px',
+                    }}>
+                      {label}
+                    </p>
+                    <p style={{
+                      fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.75, margin: 0,
+                    }}>
+                      {text}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
+        ) : (
+          <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
+            {insight.insight_text}
+          </p>
         );
       })() : (
-        <p style={{ fontSize: '14px', color: 'var(--text-placeholder)', margin: 0, lineHeight: 1.7 }}>
-          日曜日にログインすると、今週の振り返りが生成されます。
-        </p>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px',
+          padding: '16px', borderRadius: 'var(--radius-lg)',
+          background: 'var(--bg-subtle)', border: '1px solid var(--border-color)',
+        }}>
+          <BrainCircuit size={18} strokeWidth={1.8} color="var(--text-placeholder)" />
+          <p style={{ fontSize: '14px', color: 'var(--text-placeholder)', margin: 0, lineHeight: 1.6 }}>
+            日曜日にログインすると、今週の振り返りが生成されます。
+          </p>
+        </div>
       )}
     </div>
   );

@@ -48,47 +48,72 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
     router.push('/login');
   };
 
+  const bothDone = morningDone && eveningDone;
+  const noneDone = !morningDone && !eveningDone;
+
   return (
     <>
-      <header style={{ background: 'var(--bg-card)', borderBottom: '0.5px solid var(--border-color)' }}>
+      <header className="nav-outer">
         <div className="nav-inner">
           <Logo size="sm" />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {/* チェックインステータス */}
-            <div className="nav-checkin-status" style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* チェックインバッジ */}
+            <div className="nav-checkin-status" style={{ display: 'flex', gap: '5px' }}>
               {([
                 { key: 'morning', done: morningDone, Icon: Sun, label: '朝' },
                 { key: 'evening', done: eveningDone, Icon: Moon, label: '夜' },
               ] as const).map(({ key, done, Icon, label }) => (
                 <span key={key} style={{
-                  fontSize: '12px', padding: '4px 10px 4px 8px', borderRadius: '9999px',
-                  background: done ? 'var(--bg-green)' : 'var(--bg-muted)',
-                  color: done ? 'var(--text-green-dark)' : 'var(--text-muted)',
-                  border: `0.5px solid ${done ? 'var(--border-green)' : 'var(--border-muted)'}`,
-                  fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '5px',
+                  fontSize: '12px', padding: '4px 10px 4px 7px', borderRadius: 'var(--radius-full)',
+                  background: done ? 'var(--bg-green)' : 'var(--bg-subtle)',
+                  color: done ? 'var(--text-green)' : 'var(--text-placeholder)',
+                  border: `1px solid ${done ? 'var(--border-green)' : 'var(--border-color)'}`,
+                  fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: '4px',
+                  letterSpacing: '-0.01em',
                 }}>
-                  <Icon size={11} strokeWidth={2.2} />
-                  {label} {done ? '✓' : '–'}
+                  <Icon size={11} strokeWidth={done ? 2.5 : 2} />
+                  {label}{done ? ' ✓' : ''}
                 </span>
               ))}
             </div>
 
-            {/* テーマ切り替えボタン */}
+            {/* ステータス要約（モバイル向け） */}
+            {!noneDone && (
+              <span className="nav-checkin-status-sm" style={{
+                fontSize: '12px', padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                background: bothDone ? 'var(--bg-green)' : 'var(--bg-subtle)',
+                color: bothDone ? 'var(--text-green)' : 'var(--text-muted)',
+                border: `1px solid ${bothDone ? 'var(--border-green)' : 'var(--border-color)'}`,
+                fontWeight: 500, display: 'none',
+              }}>
+                {bothDone ? '✓ 完了' : '朝 ✓'}
+              </span>
+            )}
+
+            {/* テーマ切り替え */}
             <button
               onClick={toggleTheme}
               title={theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '34px', height: '34px', borderRadius: '50%',
+                width: '34px', height: '34px', borderRadius: 'var(--radius-full)',
                 background: 'transparent',
-                border: '0.5px solid var(--border-color)',
+                border: '1px solid var(--border-color)',
                 cursor: 'pointer', transition: 'all 0.15s ease',
                 color: 'var(--text-placeholder)',
                 flexShrink: 0,
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color-hover)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'; }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color-hover)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-placeholder)';
+              }}
             >
               {theme === 'dark'
                 ? <Sun size={15} strokeWidth={2} />
@@ -96,72 +121,76 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
               }
             </button>
 
+            {/* チェックインCTAボタン */}
             {pathname !== '/checkin' && (
-              <Link href="/checkin"
-                className="nav-checkin-link"
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green-hover)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-green)'; }}
-                onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)'; }}
-                onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
-              >
-                <span className="nav-checkin-icon"><PenLine size={14} strokeWidth={2} /></span>
+              <Link href="/checkin" className="nav-checkin-link">
+                <span className="nav-checkin-icon"><PenLine size={14} strokeWidth={2.2} /></span>
                 チェックイン
               </Link>
             )}
 
-            {/* プロフィールボタン + ドロップダウン */}
+            {/* プロフィール */}
             <div ref={menuRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setMenuOpen(v => !v)}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
+                  display: 'flex', alignItems: 'center', gap: '7px',
                   background: menuOpen ? 'var(--bg-subtle)' : 'transparent',
-                  border: `0.5px solid ${menuOpen ? 'var(--border-green)' : 'var(--border-color)'}`,
-                  borderRadius: '9999px', padding: '4px 10px 4px 4px',
+                  border: `1px solid ${menuOpen ? 'var(--accent-green)' : 'var(--border-color)'}`,
+                  borderRadius: 'var(--radius-full)', padding: '4px 10px 4px 4px',
                   cursor: 'pointer', transition: 'all 0.15s ease',
                 }}
-                onMouseEnter={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-green)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; } }}
-                onMouseLeave={e => { if (!menuOpen) { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)'; (e.currentTarget as HTMLElement).style.background = 'transparent'; } }}
+                onMouseEnter={e => {
+                  if (!menuOpen) {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color-hover)';
+                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!menuOpen) {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-color)';
+                    (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  }
+                }}
               >
+                {/* アバター */}
                 <div style={{
-                  width: '28px', height: '28px', borderRadius: '50%',
-                  background: 'var(--bg-green)', overflow: 'hidden',
+                  width: '28px', height: '28px', borderRadius: 'var(--radius-full)',
+                  background: 'var(--gradient-green)', overflow: 'hidden',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  boxShadow: 'var(--shadow-green)',
                 }}>
                   {profile?.avatar_url ? (
                     <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-green)' }}>{initials}</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'white', letterSpacing: '-0.02em' }}>{initials}</span>
                   )}
                 </div>
-                <span className="nav-profile-name" style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500, maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span className="nav-profile-name" style={{
+                  fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500,
+                  maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  letterSpacing: '-0.01em',
+                }}>
                   {profile?.display_name ?? 'メニュー'}
                 </span>
                 <ChevronDown
-                  size={13}
-                  strokeWidth={2.2}
-                  color="var(--text-placeholder)"
+                  size={13} strokeWidth={2.2} color="var(--text-placeholder)"
                   style={{ transform: menuOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s ease', flexShrink: 0 }}
                 />
               </button>
 
-              {/* ドロップダウンメニュー */}
+              {/* ドロップダウン */}
               {menuOpen && (
                 <div style={{
-                  position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
                   background: 'var(--bg-card)',
-                  border: '0.5px solid var(--border-color)',
-                  borderRadius: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-lg)',
                   boxShadow: 'var(--shadow-dropdown)',
-                  width: '188px',
-                  overflow: 'hidden',
-                  zIndex: 100,
-                  animation: 'fadeInDown 0.12s ease',
+                  width: '192px', overflow: 'hidden', zIndex: 100,
+                  animation: 'fadeInDown 0.15s ease',
                 }}>
-
-                  {/* プロフィール */}
-                  <button
-                    onClick={() => { setMenuOpen(false); setShowProfile(true); }}
+                  <button onClick={() => { setMenuOpen(false); setShowProfile(true); }}
                     style={itemStyle(false)}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
@@ -170,17 +199,8 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
                     プロフィール
                   </button>
 
-                  {/* コンセプト */}
-                  <Link
-                    href="/concept"
-                    style={{ textDecoration: 'none' }}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span style={{
-                      ...itemStyle(false),
-                      borderTop: '0.5px solid var(--border-color)',
-                      display: 'flex',
-                    }}
+                  <Link href="/concept" style={{ textDecoration: 'none' }} onClick={() => setMenuOpen(false)}>
+                    <span style={{ ...itemStyle(false), borderTop: '1px solid var(--border-color)', display: 'flex' }}
                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                     >
@@ -189,17 +209,14 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
                     </span>
                   </Link>
 
-                  {/* ログアウト */}
-                  <button
-                    onClick={handleSignOut}
-                    style={{ ...itemStyle(true), borderTop: '0.5px solid var(--border-color)' }}
+                  <button onClick={handleSignOut}
+                    style={{ ...itemStyle(true), borderTop: '1px solid var(--border-color)' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-amber)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                   >
                     <span style={{ color: 'var(--text-error)', display: 'flex' }}><LogOut size={14} strokeWidth={2} /></span>
                     ログアウト
                   </button>
-
                 </div>
               )}
             </div>
@@ -210,13 +227,6 @@ export default function TopNav({ morningDone, eveningDone, profile, userId }: To
       {showProfile && (
         <ProfileModal profile={profile} userId={userId} onClose={() => setShowProfile(false)} />
       )}
-
-      <style>{`
-        @keyframes fadeInDown {
-          from { opacity: 0; transform: translateY(-6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </>
   );
 }
@@ -235,4 +245,5 @@ const itemStyle = (danger: boolean): React.CSSProperties => ({
   cursor: 'pointer',
   textAlign: 'left',
   transition: 'background 0.12s ease',
+  letterSpacing: '-0.01em',
 });

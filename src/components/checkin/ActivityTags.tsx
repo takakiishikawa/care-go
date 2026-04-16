@@ -22,28 +22,27 @@ interface ActivityTagsProps {
 
 function TagButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
-  const [pressed, setPressed] = useState(false);
 
   return (
     <button
       type="button"
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setPressed(false); }}
-      onMouseDown={() => setPressed(true)}
-      onMouseUp={() => setPressed(false)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        padding: '6px 16px', borderRadius: '9999px',
+        padding: '6px 14px', borderRadius: 'var(--radius-full)',
         border: selected
-          ? '1.5px solid var(--accent-amber)'
-          : `0.5px solid ${hovered ? 'var(--border-color-hover)' : 'var(--border-color)'}`,
-        background: selected ? 'var(--bg-amber)' : hovered ? 'var(--bg-subtle)' : 'var(--bg-card)',
+          ? '1.5px solid var(--border-amber)'
+          : `1px solid ${hovered ? 'var(--border-color-hover)' : 'var(--border-color)'}`,
+        background: selected ? 'var(--bg-amber)' : hovered ? 'var(--bg-subtle)' : 'transparent',
         color: selected ? 'var(--text-amber-dark)' : hovered ? 'var(--text-secondary)' : 'var(--text-muted)',
-        fontSize: '14px', fontWeight: selected ? 500 : 400,
+        fontSize: '13px', fontWeight: selected ? 600 : 400,
         cursor: 'pointer',
-        transform: pressed ? 'scale(0.97)' : 'scale(1)',
+        transform: selected ? 'scale(1.02)' : 'scale(1)',
         transition: 'all 0.15s ease',
         whiteSpace: 'nowrap',
+        letterSpacing: '-0.01em',
+        boxShadow: selected ? 'var(--shadow-xs)' : 'none',
       }}
     >
       {label}
@@ -63,25 +62,19 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
 
   const handleAddTag = () => {
     const tag = inputValue.trim();
-    if (!tag || allTags.includes(tag)) {
-      setInputValue('');
-      return;
-    }
+    if (!tag || allTags.includes(tag)) { setInputValue(''); return; }
     onAddUserTag(tag);
     onChange([...selected, tag]);
     setInputValue('');
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddTag();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); }
   };
 
   return (
     <div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginBottom: '12px' }}>
         {allTags.map(label => (
           <TagButton key={label} label={label} selected={selected.includes(label)} onClick={() => toggle(label)} />
         ))}
@@ -91,16 +84,24 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="独自タグを追加"
+          placeholder="独自タグを追加..."
           style={{
-            flex: 1, border: '0.5px solid var(--border-color)',
-            borderRadius: '9999px', padding: '6px 14px',
-            fontSize: '14px', color: 'var(--text-secondary)', background: 'var(--bg-card)',
-            outline: 'none', transition: 'all 0.15s ease',
-            minWidth: 0,
+            flex: 1, border: '1px solid var(--border-color)',
+            borderRadius: 'var(--radius-full)', padding: '7px 14px',
+            fontSize: '13px', color: 'var(--text-secondary)', background: 'var(--bg-subtle)',
+            outline: 'none', transition: 'all 0.15s ease', minWidth: 0,
+            letterSpacing: '-0.01em',
           }}
-          onFocus={e => { e.target.style.borderColor = 'var(--accent-amber)'; e.target.style.boxShadow = '0 0 0 3px rgba(192,120,24,0.12)'; }}
-          onBlur={e => { e.target.style.borderColor = 'var(--border-color)'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => {
+            e.target.style.borderColor = 'var(--accent-green)';
+            e.target.style.boxShadow = '0 0 0 3px rgba(16,185,129,0.12)';
+            e.target.style.background = 'var(--bg-card)';
+          }}
+          onBlur={e => {
+            e.target.style.borderColor = 'var(--border-color)';
+            e.target.style.boxShadow = 'none';
+            e.target.style.background = 'var(--bg-subtle)';
+          }}
         />
         <button
           type="button"
@@ -108,12 +109,13 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
           disabled={!inputValue.trim()}
           style={{
             display: 'flex', alignItems: 'center', gap: '4px',
-            padding: '6px 12px', borderRadius: '9999px',
-            border: '0.5px solid var(--border-color)',
-            background: inputValue.trim() ? 'var(--bg-amber)' : 'var(--bg-muted)',
-            color: inputValue.trim() ? 'var(--text-amber-dark)' : 'var(--text-placeholder)',
-            fontSize: '13px', fontWeight: 500, cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+            padding: '7px 14px', borderRadius: 'var(--radius-full)',
+            border: '1px solid var(--border-color)',
+            background: inputValue.trim() ? 'var(--bg-green)' : 'var(--bg-subtle)',
+            color: inputValue.trim() ? 'var(--text-green)' : 'var(--text-placeholder)',
+            fontSize: '13px', fontWeight: 600, cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
             transition: 'all 0.15s ease', whiteSpace: 'nowrap', flexShrink: 0,
+            letterSpacing: '-0.01em',
           }}
         >
           <Plus size={13} strokeWidth={2.5} />

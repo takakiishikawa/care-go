@@ -1,65 +1,87 @@
 'use client';
 
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell, Tooltip } from 'recharts';
 import { DailyMeditation } from '@/lib/types';
 
 interface MeditationDotsProps {
   data: DailyMeditation[];
 }
 
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{ value: number }>;
+  label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: TooltipProps) {
+  if (!active || !payload?.length) return null;
+  const val = payload[0].value;
+  return (
+    <div style={{
+      background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+      borderRadius: 'var(--radius-md)', padding: '7px 12px',
+      boxShadow: 'var(--shadow-dropdown)', textAlign: 'center',
+    }}>
+      <div style={{ fontSize: '11px', color: 'var(--text-placeholder)', marginBottom: '2px' }}>{label}</div>
+      <div style={{ fontSize: '16px', fontWeight: 700, color: (val as number) > 0 ? 'var(--accent-amber)' : 'var(--text-placeholder)', letterSpacing: '-0.02em' }}>
+        {(val as number) > 0 ? `${val}回` : '–'}
+      </div>
+    </div>
+  );
+}
+
 export default function MeditationDots({ data }: MeditationDotsProps) {
   const today = new Date().toISOString().split('T')[0];
 
+  const chartData = data.map(d => {
+    const isToday = d.date === today;
+    const date = new Date(d.date + 'T00:00:00');
+    const label = isToday ? '今日' : `${date.getMonth() + 1}/${date.getDate()}`;
+    return { label, count: d.count, isToday };
+  });
+
   return (
-    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', paddingBottom: '4px', overflow: 'visible' }}>
-      {data.map(d => {
-        const isToday = d.date === today;
-        const date = new Date(d.date + 'T00:00:00');
-        const label = isToday ? '今日' : `${date.getMonth() + 1}/${date.getDate()}`;
-
-        // 2回以上=濃いオレンジ、1回=薄いオレンジ、0回=グレー
-        const dotBg = d.count >= 2
-          ? 'var(--accent-amber)'
-          : d.count === 1
-            ? '#F8D090'
-            : 'var(--bg-muted)';
-        const dotBorder = d.count >= 1 ? 'var(--accent-amber)' : 'var(--border-muted)';
-
-        return (
-          <div key={d.date} style={{
-            flex: 1,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-          }}>
-            {/* 回数ラベル */}
-            <div style={{
-              fontSize: '14px',
-              fontWeight: d.count > 0 ? 600 : 400,
-              color: d.count > 0 ? 'var(--text-primary)' : 'var(--text-placeholder)',
-              height: '20px',
-              display: 'flex', alignItems: 'center',
-            }}>
-              {d.count > 0 ? `${d.count}回` : '–'}
-            </div>
-
-            {/* ドット */}
-            <div style={{
-              width: '36px', height: '36px', borderRadius: '50%',
-              background: dotBg,
-              border: `1.5px solid ${dotBorder}`,
-              flexShrink: 0,
-            }} />
-
-            {/* 日付ラベル */}
-            <div style={{
-              fontSize: '14px',
-              color: isToday ? 'var(--accent-amber)' : 'var(--text-placeholder)',
-              fontWeight: isToday ? 600 : 400,
-              fontFamily: 'DM Sans, system-ui, sans-serif',
-            }}>
-              {label}
-            </div>
-          </div>
-        );
-      })}
+    <div style={{ width: '100%', height: 100 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={chartData} margin={{ top: 4, right: 0, bottom: 0, left: 0 }} barSize={28}>
+          <XAxis
+            dataKey="label"
+            tick={({ x, y, payload }) => {
+              const item = chartData.find(d => d.label === payload.value);
+              return (
+                <text
+                  x={x} y={(y as number) + 14} textAnchor="middle"
+                  fontSize={12}
+                  fill={item?.isToday ? 'var(--accent-amber)' : 'var(--text-placeholder)'}
+                  fontWeight={item?.isToday ? 600 : 400}
+                  fontFamily="DM Sans, system-ui, sans-serif"
+                >
+                  {payload.value}
+                </text>
+              );
+            }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--bg-subtle)' }} />
+          <Bar dataKey="count" radius={[6, 6, 2, 2]} minPointSize={3}>
+            {chartData.map((entry, index) => (
+              <Cell
+                key={index}
+                fill={
+                  entry.count >= 2
+                    ? 'var(--accent-amber)'
+                    : entry.count === 1
+                      ? '#FDE68A'
+                      : 'var(--bg-muted)'
+                }
+                stroke={entry.count >= 1 ? 'var(--border-amber)' : 'transparent'}
+                strokeWidth={entry.count >= 1 ? 1 : 0}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
