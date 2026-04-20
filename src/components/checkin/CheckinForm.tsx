@@ -7,6 +7,7 @@ import TimePeriodSelector from './TimePeriodSelector';
 import ActivityTags from './ActivityTags';
 import { createClient } from '@/lib/supabase/client';
 import { TimePeriodRatings } from '@/lib/types';
+import { Button } from '@takaki/go-design-system';
 
 interface CheckinFormProps {
   timing: 'morning' | 'checkout';
@@ -317,19 +318,11 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
         )}
 
         {/* 送信ボタン */}
-        <button
+        <Button
           onClick={handleSubmit}
           disabled={!isValid || isSubmitting}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            background: isValid && !isSubmitting ? 'var(--color-primary)' : 'var(--color-surface-subtle)',
-            color: isValid ? 'white' : 'var(--color-text-subtle)',
-            border: 'none', borderRadius: 'var(--radius-lg)',
-            padding: '15px 24px', fontSize: '16px', fontWeight: 700,
-            cursor: isValid && !isSubmitting ? 'pointer' : 'not-allowed',
-            transition: 'all 0.2s ease',
-            letterSpacing: '-0.02em',
-          }}
+          size="lg"
+          className="w-full text-base font-bold"
         >
           {isSubmitting ? (
             <>
@@ -339,7 +332,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
           ) : (
             timing === 'morning' ? 'チェックインする →' : 'チェックアウトする →'
           )}
-        </button>
+        </Button>
 
         {!isValid && (
           <p style={{ textAlign: 'center', fontSize: '12px', color: 'var(--color-text-subtle)', marginTop: '10px' }}>

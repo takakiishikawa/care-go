@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Wind, CheckCircle, LayoutDashboard, Brain, Activity } from 'lucide-react';
 import CareComment from '@/components/ui/CareComment';
+import { Button } from '@takaki/go-design-system';
 
 interface CompleteContentProps {
   meditationUrl: string;
@@ -127,36 +128,26 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
           <p style={{ fontSize: '13px', color: 'var(--foreground)', marginBottom: '14px', lineHeight: 1.6 }}>
             記録できました。このまま瞑想に進みますか？
           </p>
-          <button
+          <Button
             onClick={handleMeditation}
             disabled={isLogging}
-            style={{
-              background: 'var(--color-warning)', color: 'white', border: 'none',
-              borderRadius: 'var(--radius-md)', padding: '10px 20px',
-              fontSize: '14px', fontWeight: 600,
-              cursor: isLogging ? 'not-allowed' : 'pointer',
-              opacity: isLogging ? 0.7 : 1,
-              display: 'inline-flex', alignItems: 'center', gap: '7px',
-              transition: 'all 0.15s ease',
-              letterSpacing: '-0.01em',
-            }}
+            style={{ background: 'var(--color-warning)', border: 'none' } as React.CSSProperties}
+            className="text-white hover:opacity-90"
           >
             <Wind size={14} strokeWidth={2} />
             {meditationLogged ? '記録済み' : '瞑想に進む'}
-          </button>
+          </Button>
           <p style={{ fontSize: '11px', color: 'var(--color-text-subtle)', marginTop: '8px' }}>
             別タブでYouTubeが開き、このページはダッシュボードへ戻ります
           </p>
         </div>
 
-        <Link href="/dashboard" style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-          color: 'var(--color-text-secondary)', fontSize: '14px', textDecoration: 'none', fontWeight: 500,
-          transition: 'color 0.12s ease',
-        }}>
-          <LayoutDashboard size={14} strokeWidth={2} />
-          ダッシュボードへ戻る
-        </Link>
+        <Button variant="ghost" asChild className="w-full text-muted-foreground">
+          <Link href="/dashboard">
+            <LayoutDashboard size={14} strokeWidth={2} />
+            ダッシュボードへ戻る
+          </Link>
+        </Button>
       </div>
     </div>
   );

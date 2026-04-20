@@ -19,8 +19,8 @@ export default async function CheckinCompletePage() {
 
   return (
     <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: '#F8F6F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#A09B92' }}>読み込み中...</p>
+      <div style={{ minHeight: '100vh', background: 'var(--color-background)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: 'var(--color-text-subtle)' }}>読み込み中...</p>
       </div>
     }>
       <CompleteContent meditationUrl={meditationUrl} />

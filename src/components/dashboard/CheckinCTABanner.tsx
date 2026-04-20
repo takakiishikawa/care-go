@@ -17,7 +17,7 @@ export default function CheckinCTABanner({ greeting, ctaLabel, timing }: Checkin
     <div style={{
       background: isMorning
         ? 'var(--color-primary)'
-        : 'var(--color-text-primary)',
+        : 'var(--foreground)',
       borderRadius: 'var(--radius-lg)',
       padding: '20px 24px',
       marginBottom: '20px',

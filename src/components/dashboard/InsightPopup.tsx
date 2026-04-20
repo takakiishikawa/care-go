@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, X, Loader2 } from 'lucide-react';
 import { isSundayHCM } from '@/lib/timing';
+import { Button } from '@takaki/go-design-system';
 
 interface InsightPopupProps {
   weekStartStr: string;
@@ -72,7 +73,7 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
 
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
-            width: '56px', height: '56px', background: 'var(--color-success-subtle)', borderRadius: '50%',
+            width: '56px', height: '56px', background: 'var(--color-success-subtle)', borderRadius: 'var(--radius-full)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
           }}>
             <Sparkles size={26} strokeWidth={1.8} color="var(--color-success)" />
@@ -92,36 +93,25 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <button
+          <Button
             onClick={handleGenerate}
             disabled={isGenerating}
-            style={{
-              width: '100%', background: 'var(--color-primary)', color: 'white',
-              border: 'none', borderRadius: 'var(--radius-md)', padding: '14px',
-              fontSize: '16px', fontWeight: 500,
-              cursor: isGenerating ? 'not-allowed' : 'pointer',
-              opacity: isGenerating ? 0.8 : 1,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              transition: 'all 0.15s ease',
-            }}
+            size="lg"
+            className="w-full"
           >
             {isGenerating
               ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> 生成しています…</>
               : <><Sparkles size={16} strokeWidth={2} /> 振り返りを見る</>
             }
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleLater}
-            style={{
-              width: '100%', background: 'transparent', color: 'var(--color-text-secondary)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)', padding: '14px',
-              fontSize: '16px', fontWeight: 500, cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
+            variant="outline"
+            size="lg"
+            className="w-full"
           >
             後で
-          </button>
+          </Button>
         </div>
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>

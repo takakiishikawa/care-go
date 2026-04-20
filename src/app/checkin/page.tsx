@@ -4,6 +4,7 @@ import CheckinForm from '@/components/checkin/CheckinForm';
 import { getCheckinTiming, getTodayHCM } from '@/lib/timing';
 import Link from 'next/link';
 import { CheckCircle, LayoutDashboard } from 'lucide-react';
+import { Button } from '@takaki/go-design-system';
 
 export default async function CheckinPage() {
   const supabase = await createClient();
@@ -47,16 +48,12 @@ export default async function CheckinPage() {
                 ? '夜チェックアウトは19時以降にできます。'
                 : '今日のチェックイン・アウトは完了しています。'}
             </p>
-            <Link href="/dashboard" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '7px',
-              background: 'var(--color-primary)', color: 'white',
-              borderRadius: 'var(--radius-md)', padding: '12px 24px',
-              fontSize: '15px', fontWeight: 600, textDecoration: 'none',
-              letterSpacing: '-0.02em',
-            }}>
-              <LayoutDashboard size={15} strokeWidth={2} />
-              ダッシュボードへ
-            </Link>
+            <Button asChild size="lg">
+              <Link href="/dashboard">
+                <LayoutDashboard size={15} strokeWidth={2} />
+                ダッシュボードへ
+              </Link>
+            </Button>
           </div>
         ) : (
           <CheckinForm timing={timing} />

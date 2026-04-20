@@ -60,9 +60,9 @@ export default function ScoreLineChart({ data, fillHeight = false }: ScoreLineCh
         <AreaChart data={chartData} margin={{ top: 12, right: 8, bottom: 4, left: 0 }}>
           <defs>
             <linearGradient id="scoreGradFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#2D8A5F" stopOpacity={0.18} />
-              <stop offset="80%"  stopColor="#2D8A5F" stopOpacity={0.02} />
-              <stop offset="100%" stopColor="#2D8A5F" stopOpacity={0} />
+              <stop offset="0%"   stopColor="var(--color-primary)" stopOpacity={0.18} />
+              <stop offset="80%"  stopColor="var(--color-primary)" stopOpacity={0.02} />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -98,23 +98,22 @@ export default function ScoreLineChart({ data, fillHeight = false }: ScoreLineCh
           <Area
             type="monotone"
             dataKey="score"
-            stroke="#2D8A5F"
+            stroke="var(--color-primary)"
             strokeWidth={2.5}
             fill="url(#scoreGradFill)"
             dot={false}
             activeDot={{
-              r: 5, fill: '#2D8A5F', stroke: 'var(--card)', strokeWidth: 2,
+              r: 5, fill: 'var(--color-primary)', stroke: 'var(--card)', strokeWidth: 2,
             }}
             connectNulls={false}
           />
 
-          {/* 今日のドットを強調 */}
           {todayDot && todayDot.score != null && (
             <ReferenceDot
               x={todayDot.label}
               y={todayDot.score}
               r={6}
-              fill="#2D8A5F"
+              fill="var(--color-primary)"
               stroke="var(--card)"
               strokeWidth={2.5}
             />
