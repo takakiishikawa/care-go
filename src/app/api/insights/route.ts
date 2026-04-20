@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { TimePeriodRatings } from '@/lib/types';
+import { ANTHROPIC_MODEL } from '@/lib/constants';
+import { countTags, topTagsText } from '@/lib/tag-utils';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -43,14 +45,8 @@ export async function POST() {
     : 'データなし';
 
   // 活動タグの集計
-  const allActivities = checkins.flatMap(c => c.activity_tags || []);
-  const activityCounts: Record<string, number> = {};
-  allActivities.forEach(tag => { activityCounts[tag] = (activityCounts[tag] || 0) + 1; });
-  const topActivities = Object.entries(activityCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
-    .map(([tag, count]) => `${tag}(${count}回)`)
-    .join('、');
+  const activityCounts = countTags(checkins.map(c => c.activity_tags));
+  const topActivities = topTagsText(activityCounts, 5);
 
   const validScores = checkins.filter(c => c.condition_score !== null);
   const avgScore = validScores.length > 0
@@ -65,7 +61,7 @@ export async function POST() {
   const summary = `チェックイン回数: ${checkins.length}回、平均コンディションスコア: ${avgScore.toFixed(1)}（心: ${avgMind}、体: ${avgBody}）、評価分布: ${ratingText}、よく見られた活動: ${topActivities || 'なし'}`;
 
   const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: ANTHROPIC_MODEL,
     max_tokens: 700,
     messages: [{ role: 'user', content: summary }],
     system: `あなたはCare（ケア）というAIキャラクターです。ユーザーの過去7日間のコンディションデータを分析して、週次レポートを日本語で返してください。

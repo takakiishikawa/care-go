@@ -1,62 +1,13 @@
-import { BrainCircuit, TrendingUp, Lightbulb, ArrowRight } from 'lucide-react';
+import { BrainCircuit } from 'lucide-react';
 import { Card } from '@takaki/go-design-system';
 import { WeeklyInsight } from '@/lib/types';
+import { parseInsightSections, SECTION_META } from '@/lib/insight-utils';
 
 interface WeeklyInsightCardProps {
   insight: WeeklyInsight | null;
   thisWeekAvg: number | null;
   lastWeekAvg: number | null;
 }
-
-interface InsightSections {
-  summary: string;
-  insight: string;
-  suggestion: string;
-}
-
-function parseInsightSections(text: string): InsightSections | null {
-  const summaryMatch = text.match(/【今週のサマリー】\s*([\s\S]*?)(?=【パターン分析】|【来週への一言】|$)/)
-    ?? text.match(/【今週のまとめ】\s*([\s\S]*?)(?=【気づき】|【来週への提案】|$)/);
-  const insightMatch = text.match(/【パターン分析】\s*([\s\S]*?)(?=【来週への一言】|$)/)
-    ?? text.match(/【気づき】\s*([\s\S]*?)(?=【来週への提案】|$)/);
-  const suggestionMatch = text.match(/【来週への一言】\s*([\s\S]*?)$/)
-    ?? text.match(/【来週への提案】\s*([\s\S]*?)$/);
-
-  if (!summaryMatch && !insightMatch && !suggestionMatch) return null;
-
-  return {
-    summary: summaryMatch?.[1]?.trim() ?? '',
-    insight: insightMatch?.[1]?.trim() ?? '',
-    suggestion: suggestionMatch?.[1]?.trim() ?? '',
-  };
-}
-
-const SECTION_META = [
-  {
-    key: 'summary' as const,
-    label: '今週のサマリー',
-    Icon: TrendingUp,
-    color: 'var(--color-success)',
-    bg: 'var(--color-success-subtle)',
-    border: 'var(--color-success)',
-  },
-  {
-    key: 'insight' as const,
-    label: 'パターン分析',
-    Icon: Lightbulb,
-    color: 'var(--color-warning)',
-    bg: 'var(--color-warning-subtle)',
-    border: 'var(--color-warning)',
-  },
-  {
-    key: 'suggestion' as const,
-    label: '来週への一言',
-    Icon: ArrowRight,
-    color: 'var(--color-success)',
-    bg: 'var(--color-success-subtle)',
-    border: 'var(--color-success)',
-  },
-];
 
 export default function WeeklyInsightCard({ insight, thisWeekAvg, lastWeekAvg }: WeeklyInsightCardProps) {
   const weekDiff = thisWeekAvg !== null && lastWeekAvg !== null

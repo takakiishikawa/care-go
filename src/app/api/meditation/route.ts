@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { CheckinTiming } from '@/lib/types';
+
+const VALID_TIMINGS: CheckinTiming[] = ['morning', 'checkout'];
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -12,12 +15,17 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { timing, checkin_id } = body;
 
+  if (!timing || !VALID_TIMINGS.includes(timing)) {
+    return NextResponse.json({ error: 'Invalid timing' }, { status: 400 });
+  }
+
   const { data, error } = await supabase
     .from('meditation_logs')
     .insert({
       user_id: user.id,
       timing,
-      checkin_id: checkin_id || null,
+      checkin_id: checkin_id ?? null,
+      logged_at: new Date().toISOString(),
     })
     .select()
     .single();

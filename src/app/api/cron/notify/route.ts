@@ -2,6 +2,9 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import webpush from 'web-push';
+import { ANTHROPIC_MODEL } from '@/lib/constants';
+import { getHCMHour } from '@/lib/timing';
+import { countTags } from '@/lib/tag-utils';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -12,9 +15,7 @@ async function generateNotificationMessage(
     ? Math.round(recentCheckins.filter(c => c.condition_score !== null).reduce((s, c) => s + (c.condition_score || 0), 0) / recentCheckins.length)
     : null;
 
-  const allActivities = recentCheckins.flatMap(c => c.activity_tags || []);
-  const activityCounts: Record<string, number> = {};
-  allActivities.forEach(a => { activityCounts[a] = (activityCounts[a] || 0) + 1; });
+  const activityCounts = countTags(recentCheckins.map(c => c.activity_tags));
   const topActivity = Object.entries(activityCounts).sort(([, a], [, b]) => b - a)[0]?.[0];
 
   const context = avgScore !== null
@@ -22,7 +23,7 @@ async function generateNotificationMessage(
     : '今日のコンディションはまだ記録されていません。';
 
   const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: ANTHROPIC_MODEL,
     max_tokens: 80,
     messages: [{ role: 'user', content: context }],
     system: `夜のチェックインを促すプッシュ通知の本文を1文で生成してください。
@@ -49,8 +50,7 @@ export async function GET(request: Request) {
     process.env.VAPID_PRIVATE_KEY || ''
   );
 
-  // 現在のHCM時間（UTC+7）
-  const nowHCM = (new Date().getUTCHours() + 7) % 24;
+  const nowHCM = getHCMHour();
 
   const supabase = createAdminClient();
 

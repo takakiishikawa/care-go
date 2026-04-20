@@ -12,6 +12,10 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { subscription, notification_time } = body;
 
+  if (notification_time !== undefined && (typeof notification_time !== 'number' || notification_time < 0 || notification_time > 23)) {
+    return NextResponse.json({ error: 'notification_time must be 0–23' }, { status: 400 });
+  }
+
   // サブスクリプションなしで時間だけ更新する場合
   if (!subscription?.endpoint) {
     if (notification_time !== undefined) {

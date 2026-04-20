@@ -79,7 +79,10 @@ export default function InsightPopup({ weekStartStr, hasEnoughData }: InsightPop
 
         {error && (
           <div style={{ color: 'var(--color-danger)', fontSize: '14px', marginBottom: '16px', background: 'var(--color-danger-subtle)', padding: '10px 14px', borderRadius: 'var(--radius-md)' }}>
-            {error}
+            <p className="mb-2">{error}</p>
+            <Button variant="outline" size="sm" onClick={() => { setError(null); handleGenerate(); }}>
+              再試行
+            </Button>
           </div>
         )}
 

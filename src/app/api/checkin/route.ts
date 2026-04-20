@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { Rating, TimePeriodRatings } from '@/lib/types';
+import { ANTHROPIC_MODEL } from '@/lib/constants';
+import { countTags, topTagsText } from '@/lib/tag-utils';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -101,7 +103,7 @@ async function calculateScoresWithAI(
   ].filter(Boolean).join('\n');
 
   const msg = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: ANTHROPIC_MODEL,
     max_tokens: 100,
     messages: [{ role: 'user', content: dataStr }],
     system: SCORE_SYSTEM_PROMPT,
@@ -141,14 +143,8 @@ async function generateCareComment(
     })
     .join(', ');
 
-  const allRecentTags = recentCheckins.flatMap(c => c.activity_tags || []);
-  const tagCounts: Record<string, number> = {};
-  allRecentTags.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; });
-  const topTags = Object.entries(tagCounts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 6)
-    .map(([t, n]) => `${t}(${n}回)`)
-    .join('、');
+  const tagCounts = countTags(recentCheckins.map(c => c.activity_tags));
+  const topTags = topTagsText(tagCounts, 6);
 
   const lines: string[] = [
     `${label}（${timeStr}）`,
@@ -168,7 +164,7 @@ async function generateCareComment(
   lines.push(`よく見られた活動: ${topTags || 'データなし'}`);
 
   const msg = await anthropic.messages.create({
-    model: 'claude-sonnet-4-5',
+    model: ANTHROPIC_MODEL,
     max_tokens: 300,
     messages: [{ role: 'user', content: lines.filter(Boolean).join('\n') }],
     system: CARE_SYSTEM_PROMPT,
@@ -256,39 +252,24 @@ export async function POST(request: Request) {
     morningContext,
   );
 
-  // DBに保存（mind_score/body_scoreはカラムが存在する場合のみ）
-  const insertData: Record<string, unknown> = {
-    user_id: user.id,
-    timing,
-    time_period_ratings,
-    activity_tags,
-    free_text: free_text || null,
-    condition_score,
-    ai_comment,
-    checked_at: checkedAt,
-  };
-
-  // mind_score / body_score カラムが追加済みであれば含める
-  if (mind_score !== null) insertData.mind_score = mind_score;
-  if (body_score !== null) insertData.body_score = body_score;
-
   const { data, error } = await supabase
     .from('checkins')
-    .insert(insertData)
+    .insert({
+      user_id: user.id,
+      timing,
+      time_period_ratings,
+      activity_tags,
+      free_text: free_text || null,
+      condition_score,
+      mind_score,
+      body_score,
+      ai_comment,
+      checked_at: checkedAt,
+    })
     .select()
     .single();
 
   if (error) {
-    // mind/body_score が原因の場合はそれを除いてリトライ
-    if (error.message?.includes('mind_score') || error.message?.includes('body_score')) {
-      const fallbackData = { ...insertData };
-      delete fallbackData.mind_score;
-      delete fallbackData.body_score;
-      const { data: d2, error: e2 } = await supabase
-        .from('checkins').insert(fallbackData).select().single();
-      if (e2) return NextResponse.json({ error: e2.message }, { status: 500 });
-      return NextResponse.json({ checkin: d2 });
-    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

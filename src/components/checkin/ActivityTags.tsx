@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent } from 'react';
 import { Plus } from 'lucide-react';
 import { Button, Input } from '@takaki/go-design-system';
+import { TAG_MAX_LENGTH } from '@/lib/constants';
 
 const MORNING_TAGS = [
   'ポルノ', '飲酒', 'kindle', 'YouTube', '友人とチャット', '早めに寝た',
@@ -55,7 +56,7 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
   };
 
   const handleAddTag = () => {
-    const tag = inputValue.trim();
+    const tag = inputValue.trim().slice(0, TAG_MAX_LENGTH);
     if (!tag || allTags.includes(tag)) { setInputValue(''); return; }
     onAddUserTag(tag);
     onChange([...selected, tag]);
@@ -80,6 +81,7 @@ export default function ActivityTags({ timing, selected, onChange, userTags, onA
           onKeyDown={handleKeyDown}
           placeholder="独自タグを追加..."
           className="flex-1 rounded-full text-[13px] tracking-tight min-w-0"
+          maxLength={TAG_MAX_LENGTH}
         />
         <Button
           type="button"
