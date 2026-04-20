@@ -50,7 +50,7 @@ export default async function RootLayout({
         <SplashScreen />
         <ServiceWorkerRegistrar />
         {user ? (
-          <AppLayout sidebar={<CareGoSidebar />} mainClassName="p-0">
+          <AppLayout sidebar={<CareGoSidebar />}>
             {children}
           </AppLayout>
         ) : (
