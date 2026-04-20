@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/server';
+import { PageHeader } from '@takaki/go-design-system';
 import CompleteContent from './CompleteContent';
 
 const FALLBACK_URL = 'https://www.youtube.com/watch?v=LR6-B9ItZxE';
@@ -18,12 +19,15 @@ export default async function CheckinCompletePage() {
   const meditationUrl = await getMeditationUrl();
 
   return (
-    <Suspense fallback={
-      <div style={{ minHeight: '100vh', background: 'var(--color-background)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--color-text-subtle)' }}>読み込み中...</p>
-      </div>
-    }>
-      <CompleteContent meditationUrl={meditationUrl} />
-    </Suspense>
+    <div className="max-w-xl space-y-6">
+      <PageHeader title="記録完了" description="お疲れさまでした" />
+      <Suspense fallback={
+        <div className="flex items-center justify-center py-12">
+          <p className="text-sm text-muted-foreground">読み込み中...</p>
+        </div>
+      }>
+        <CompleteContent meditationUrl={meditationUrl} />
+      </Suspense>
+    </div>
   );
 }

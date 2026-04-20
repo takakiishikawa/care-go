@@ -26,36 +26,39 @@ export default async function CheckinPage() {
   const title = isMorning ? '朝チェックイン' : '夜チェックアウト';
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-6">
+      {/* PageHeader — 全ページ共通の位置で表示 */}
       <PageHeader
         title={title}
         description={isMorning ? '今朝の状態を記録しましょう' : '今日一日を締めくくりましょう'}
       />
 
       {alreadyDone ? (
-        <Card className="p-12 flex flex-col items-center text-center">
-          <div style={{
-            width: '64px', height: '64px', background: 'var(--color-success-subtle)',
-            borderRadius: 'var(--radius-full)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px',
-          }}>
-            <CheckCircle size={28} strokeWidth={2} color="var(--color-success)" />
-          </div>
-          <h2 className="text-lg font-bold text-foreground mb-2">
-            {title}は完了済みです
-          </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-7">
-            {isMorning && !checkoutDone
-              ? '夜チェックアウトは19時以降にできます。'
-              : '今日のチェックイン・アウトは完了しています。'}
-          </p>
-          <Button asChild size="lg">
-            <Link href="/dashboard">
-              <LayoutDashboard size={15} strokeWidth={2} />
-              ダッシュボードへ
-            </Link>
-          </Button>
-        </Card>
+        <div className="flex justify-center">
+          <Card className="max-w-md w-full p-12 flex flex-col items-center text-center">
+            <div style={{
+              width: '64px', height: '64px', background: 'var(--color-success-subtle)',
+              borderRadius: 'var(--radius-full)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px',
+            }}>
+              <CheckCircle size={28} strokeWidth={2} color="var(--color-success)" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-2">
+              {title}は完了済みです
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-7">
+              {isMorning && !checkoutDone
+                ? '夜チェックアウトは19時以降にできます。'
+                : '今日のチェックイン・アウトは完了しています。'}
+            </p>
+            <Button asChild size="lg">
+              <Link href="/dashboard">
+                <LayoutDashboard size={15} strokeWidth={2} />
+                ダッシュボードへ
+              </Link>
+            </Button>
+          </Card>
+        </div>
       ) : (
         <CheckinForm timing={timing} />
       )}

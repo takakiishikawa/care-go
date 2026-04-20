@@ -1,7 +1,7 @@
 'use client';
 
 import { Moon, Sunrise, Sun, CloudSun, Sunset, MoonStar, TrendingUp, Minus, TrendingDown } from 'lucide-react';
-import { Rating, TimePeriodRatings, CheckinTiming } from '@/lib/types';
+import { Rating, TimePeriodRatings } from '@/lib/types';
 
 interface Period {
   key: string;
@@ -22,24 +22,26 @@ const EVENING_PERIODS: Period[] = [
 ];
 
 const PERIOD_LABELS: Record<string, [string, string, string]> = {
-  last_night:   ['ぐっすり眠れた',     'まあまあだった',    'あまり眠れなかった'],
-  this_morning: ['すっきり起きられた', '普通',              'だるかった'],
-  morning:      ['集中できた',          '普通',              '集中できなかった'],
-  afternoon:    ['エネルギーがあった',  '普通',              'エネルギー低め'],
-  evening:      ['すっきりしていた',    '普通',              '疲労感があった'],
-  night:        ['落ち着いていた',      '普通',              'ざわざわしていた'],
+  last_night:   ['ぐっすり', 'まあまあ', '眠れず'],
+  this_morning: ['すっきり', '普通',     'だるい'],
+  morning:      ['集中できた', '普通',   '低調'],
+  afternoon:    ['元気だった', '普通',   '疲れた'],
+  evening:      ['すっきり', '普通',     '疲労感'],
+  night:        ['落ち着いた', '普通',   'ざわざわ'],
 };
 
-const RATING_META: Array<{
+interface RatingOption {
   value: Rating;
   Icon: React.ComponentType<{ size?: number; strokeWidth?: number; color?: string }>;
-  selectedColor: string;
-  selectedBg: string;
-  selectedBorder: string;
-}> = [
-  { value: 'A', Icon: TrendingUp,   selectedColor: 'var(--color-success)', selectedBg: 'var(--color-success-subtle)', selectedBorder: 'var(--color-success)' },
-  { value: 'B', Icon: Minus,        selectedColor: 'var(--color-text-secondary)', selectedBg: 'var(--color-surface-subtle)', selectedBorder: 'var(--color-border-default)' },
-  { value: 'C', Icon: TrendingDown, selectedColor: 'var(--color-warning)', selectedBg: 'var(--color-warning-subtle)', selectedBorder: 'var(--color-warning)' },
+  color: string;
+  bg: string;
+  border: string;
+}
+
+const RATING_OPTIONS: RatingOption[] = [
+  { value: 'A', Icon: TrendingUp,   color: 'var(--color-success)', bg: 'var(--color-success-subtle)', border: 'var(--color-success)' },
+  { value: 'B', Icon: Minus,        color: 'var(--muted-foreground)', bg: 'var(--color-surface-subtle)', border: 'var(--border)' },
+  { value: 'C', Icon: TrendingDown, color: 'var(--color-warning)', bg: 'var(--color-warning-subtle)', border: 'var(--color-warning)' },
 ];
 
 interface TimePeriodSelectorProps {
@@ -51,69 +53,80 @@ interface TimePeriodSelectorProps {
 export default function TimePeriodSelector({ timing, ratings, onChange }: TimePeriodSelectorProps) {
   const periods = timing === 'morning' ? MORNING_PERIODS : EVENING_PERIODS;
 
-  const handleSelect = (periodKey: string, rating: Rating) => {
+  const select = (periodKey: string, rating: Rating) => {
     onChange({ ...ratings, [periodKey]: rating });
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <div className={`grid gap-3 ${timing === 'checkout' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
       {periods.map(({ key, label, Icon }) => {
         const selected = ratings[key] as Rating | undefined;
-        const periodLabels = PERIOD_LABELS[key] ?? ['良い', '普通', '悪い'];
+        const labels = PERIOD_LABELS[key] ?? ['良い', '普通', '悪い'];
+
         return (
-          <div key={key} style={{
-            display: 'flex', alignItems: 'center', gap: '12px',
-            padding: '12px 14px', borderRadius: 'var(--radius-lg)',
-            background: selected ? 'var(--color-surface-subtle)' : 'transparent',
-            border: `1px solid ${selected ? 'var(--color-border-strong)' : 'var(--color-border-default)'}`,
-            transition: 'all 0.15s ease',
-          }}>
-            {/* 時間帯ラベル */}
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
-              minWidth: '44px', flexShrink: 0,
-            }}>
-              <Icon size={16} strokeWidth={1.8} color={selected ? 'var(--color-primary)' : 'var(--color-text-subtle)'} />
-              <span style={{
-                fontSize: '12px', fontWeight: 600,
-                color: selected ? 'var(--color-primary)' : 'var(--color-text-subtle)',
-                letterSpacing: '-0.01em',
-              }}>
+          <div
+            key={key}
+            className="rounded-lg p-4 transition-all duration-150"
+            style={{
+              background: selected ? 'var(--color-surface-subtle)' : 'var(--card)',
+              border: `1px solid ${selected ? 'var(--color-border-strong, var(--border))' : 'var(--border)'}`,
+            }}
+          >
+            {/* Period header */}
+            <div className="flex items-center gap-2 mb-3">
+              <Icon
+                size={14}
+                strokeWidth={1.8}
+                color={selected ? 'var(--color-primary)' : 'var(--color-text-subtle, var(--muted-foreground))'}
+              />
+              <span
+                className="text-sm font-semibold tracking-tight"
+                style={{ color: selected ? 'var(--foreground)' : 'var(--muted-foreground)' }}
+              >
                 {label}
               </span>
+              {selected && (
+                <span
+                  className="ml-auto text-xs font-medium"
+                  style={{ color: RATING_OPTIONS.find(r => r.value === selected)?.color }}
+                >
+                  {selected === 'A' ? '良い' : selected === 'B' ? '普通' : '悪い'}
+                </span>
+              )}
             </div>
 
-            {/* 評価ボタン群 */}
-            <div style={{ display: 'flex', gap: '6px', flex: 1 }}>
-              {RATING_META.map(({ value, Icon: RIcon, selectedColor, selectedBg, selectedBorder }, idx) => {
+            {/* Rating buttons */}
+            <div className="grid grid-cols-3 gap-1.5">
+              {RATING_OPTIONS.map(({ value, Icon: RIcon, color, bg, border }, idx) => {
                 const isSelected = selected === value;
-                const btnLabel = periodLabels[idx];
                 return (
                   <button
                     key={value}
                     type="button"
-                    onClick={() => handleSelect(key, value)}
+                    onClick={() => select(key, value)}
+                    className="flex flex-col items-center gap-1.5 px-1 py-2.5 rounded-md transition-all duration-150 cursor-pointer"
                     style={{
-                      flex: 1,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                      padding: '8px 4px',
-                      border: `1px solid ${isSelected ? selectedBorder : 'var(--color-border-default)'}`,
-                      borderRadius: 'var(--radius-md)',
-                      background: isSelected ? selectedBg : 'var(--card)',
-                      color: isSelected ? selectedColor : 'var(--color-text-subtle)',
-                      fontSize: '12px', fontWeight: isSelected ? 700 : 400,
-                      cursor: 'pointer',
-                      transition: 'all 0.12s ease',
-                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
-                      boxShadow: isSelected ? `0 0 0 2px ${selectedBorder}` : 'none',
-                      textAlign: 'center' as const,
-                      lineHeight: 1.3,
-                      wordBreak: 'break-all' as const,
-                      letterSpacing: '-0.01em',
+                      border: isSelected ? `1.5px solid ${border}` : '1px solid var(--border)',
+                      background: isSelected ? bg : 'var(--card)',
+                      boxShadow: isSelected ? `0 0 0 1px ${border}` : 'none',
+                      transform: isSelected ? 'scale(1.02)' : 'scale(1)',
                     }}
                   >
-                    <RIcon size={11} strokeWidth={2.2} color={isSelected ? selectedColor : 'var(--color-text-subtle)'} />
-                    <span style={{ minWidth: 0 }}>{btnLabel}</span>
+                    <RIcon
+                      size={13}
+                      strokeWidth={2.2}
+                      color={isSelected ? color : 'var(--muted-foreground)'}
+                    />
+                    <span
+                      className="text-[11px] leading-tight text-center"
+                      style={{
+                        color: isSelected ? color : 'var(--muted-foreground)',
+                        fontWeight: isSelected ? 600 : 400,
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {labels[idx]}
+                    </span>
                   </button>
                 );
               })}

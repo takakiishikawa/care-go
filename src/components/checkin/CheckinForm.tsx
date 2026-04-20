@@ -13,20 +13,24 @@ interface CheckinFormProps {
   timing: 'morning' | 'checkout';
 }
 
-function SectionHeader({ icon, label, required = false, optional = false }: {
+function SectionLabel({ icon, label, badge }: {
   icon: React.ReactNode;
   label: string;
-  required?: boolean;
-  optional?: boolean;
+  badge?: 'required' | 'optional';
 }) {
   return (
-    <div className="flex items-center gap-2 mb-3.5">
-      <div className="flex size-[26px] shrink-0 items-center justify-center rounded-md border border-border bg-surface-subtle">
+    <div className="flex items-center gap-2 mb-4">
+      <div className="flex size-6 shrink-0 items-center justify-center rounded border border-border"
+        style={{ background: 'var(--color-surface-subtle)' }}>
         {icon}
       </div>
-      <span className="text-sm font-semibold text-foreground tracking-tight">{label}</span>
-      {required && <span className="text-xs" style={{ color: 'var(--color-danger)' }}>必須</span>}
-      {optional && <span className="text-xs text-muted-foreground">任意</span>}
+      <span className="text-sm font-semibold tracking-tight text-foreground">{label}</span>
+      {badge === 'required' && (
+        <span className="text-xs" style={{ color: 'var(--color-danger)' }}>必須</span>
+      )}
+      {badge === 'optional' && (
+        <span className="text-xs text-muted-foreground">任意</span>
+      )}
     </div>
   );
 }
@@ -88,12 +92,9 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
     recognitionRef.current = rec; rec.start(); setIsRecording(true);
   }, [isRecording, freeText, stopRecording]);
 
-  const expectedPeriods = isMorning
-    ? ['last_night', 'this_morning']
-    : ['morning', 'afternoon', 'evening', 'night'];
+  const expectedPeriods = isMorning ? ['last_night', 'this_morning'] : ['morning', 'afternoon', 'evening', 'night'];
   const isValid = expectedPeriods.every(p => ratings[p] !== undefined);
-
-  const activityLabel = isMorning ? '昨夜の活動' : '今日の活動';
+  const filledCount = expectedPeriods.filter(p => ratings[p] !== undefined).length;
 
   useEffect(() => {
     const supabase = createClient();
@@ -138,123 +139,144 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   };
 
   return (
-    <Card className="p-7 space-y-6">
-      {/* 時間帯別コンディション */}
-      <section>
-        <SectionHeader
-          icon={<BarChart2 size={13} strokeWidth={2.2} color="var(--color-primary)" />}
-          label="時間帯別コンディション"
-          required
-        />
-        <TimePeriodSelector timing={timing} ratings={ratings} onChange={setRatings} />
-      </section>
+    <div className="max-w-4xl">
+      <Card className="overflow-hidden p-0">
+        {/* 2-col layout on lg: left = time periods, right = activity + memo */}
+        <div className="grid grid-cols-1 lg:grid-cols-2">
 
-      <Separator />
+          {/* ── 左パネル：時間帯コンディション ── */}
+          <div className="p-6 lg:border-r border-b lg:border-b-0 border-border">
+            <div className="flex items-center justify-between mb-4">
+              <SectionLabel
+                icon={<BarChart2 size={13} strokeWidth={2.2} color="var(--color-primary)" />}
+                label="時間帯別コンディション"
+                badge="required"
+              />
+              <span className="text-xs text-muted-foreground tabular-nums">
+                {filledCount} / {expectedPeriods.length}
+              </span>
+            </div>
+            <TimePeriodSelector timing={timing} ratings={ratings} onChange={setRatings} />
+          </div>
 
-      {/* 活動タグ */}
-      <section>
-        <SectionHeader
-          icon={<Activity size={13} strokeWidth={2.2} color="var(--color-warning)" />}
-          label={activityLabel}
-          optional
-        />
-        <ActivityTags
-          timing={timing}
-          selected={activityTags}
-          onChange={setActivityTags}
-          userTags={userActivityTags}
-          onAddUserTag={handleAddUserTag}
-        />
-      </section>
+          {/* ── 右パネル：活動 + メモ ── */}
+          <div className="p-6 space-y-5">
+            {/* 活動タグ */}
+            <div>
+              <SectionLabel
+                icon={<Activity size={13} strokeWidth={2.2} color="var(--color-warning)" />}
+                label={isMorning ? '昨夜の活動' : '今日の活動'}
+                badge="optional"
+              />
+              <ActivityTags
+                timing={timing}
+                selected={activityTags}
+                onChange={setActivityTags}
+                userTags={userActivityTags}
+                onAddUserTag={handleAddUserTag}
+              />
+            </div>
 
-      <Separator />
+            <Separator />
 
-      {/* メモ（音声入力）*/}
-      <section>
-        <div className="flex items-center justify-between mb-3.5">
-          <SectionHeader
-            icon={<FileText size={13} strokeWidth={2.2} color="var(--color-text-secondary)" />}
-            label="メモ"
-            optional
-          />
-          {isRecording && (
-            <span className="flex items-center gap-1.5 text-xs font-semibold animate-pulse" style={{ color: 'var(--color-danger)' }}>
-              <span className="size-[7px] rounded-full animate-pulse" style={{ background: 'var(--color-danger)', display: 'inline-block' }} />
-              録音中
-            </span>
-          )}
+            {/* メモ */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <SectionLabel
+                  icon={<FileText size={13} strokeWidth={2.2} color="var(--muted-foreground)" />}
+                  label="メモ"
+                  badge="optional"
+                />
+                {isRecording && (
+                  <span className="flex items-center gap-1.5 text-xs font-semibold animate-pulse"
+                    style={{ color: 'var(--color-danger)' }}>
+                    <span className="size-[6px] rounded-full inline-block animate-pulse"
+                      style={{ background: 'var(--color-danger)' }} />
+                    録音中
+                  </span>
+                )}
+              </div>
+
+              <div
+                className="rounded-lg p-3.5 transition-all min-h-[72px] flex flex-col gap-3"
+                style={{
+                  border: `1px solid ${isRecording ? 'var(--color-danger)' : 'var(--border)'}`,
+                  background: isRecording ? 'var(--color-danger-subtle)' : 'var(--color-surface-subtle)',
+                }}
+              >
+                <p
+                  className="text-sm leading-relaxed flex-1"
+                  style={{ color: freeText ? 'var(--foreground)' : 'var(--muted-foreground)', margin: 0 }}
+                >
+                  {freeText || (isRecording ? '話してください…' : '音声入力ボタンを押して話してください')}
+                </p>
+
+                <div className="flex items-center gap-2">
+                  {speechSupported ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isRecording ? 'destructive' : 'outline'}
+                      onClick={toggleRecording}
+                      className="rounded-full"
+                    >
+                      {isRecording
+                        ? <><MicOff size={12} strokeWidth={2} /> 停止</>
+                        : <><Mic size={12} strokeWidth={2} /> 音声入力</>
+                      }
+                    </Button>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">このブラウザは音声入力非対応です</span>
+                  )}
+                  {freeText && (
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setFreeText('')}>
+                      クリア
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div
-          className="rounded-lg p-4 flex flex-col gap-3 min-h-[80px] transition-all"
-          style={{
-            border: `1px solid ${isRecording ? 'var(--color-danger)' : 'var(--border)'}`,
-            background: isRecording ? 'var(--color-danger-subtle)' : 'var(--color-surface-subtle)',
-          }}
-        >
-          <p className="text-sm leading-relaxed flex-1 min-h-10"
-            style={{ color: freeText ? 'var(--foreground)' : 'var(--color-text-subtle)', margin: 0 }}>
-            {freeText || (isRecording ? '話してください…' : '音声入力ボタンを押して話してください')}
-          </p>
+        {/* ── フッター：エラー + 送信 ── */}
+        <div className="p-6 border-t border-border space-y-3">
+          {error && (
+            <div className="rounded-md border px-4 py-3 text-sm"
+              style={{
+                color: 'var(--color-danger)',
+                background: 'var(--color-danger-subtle)',
+                borderColor: 'var(--color-danger)',
+              }}>
+              {error}
+            </div>
+          )}
 
-          <div className="flex items-center gap-2.5">
-            {speechSupported ? (
-              <Button
-                type="button"
-                size="sm"
-                variant={isRecording ? 'destructive' : 'default'}
-                onClick={toggleRecording}
-                className="rounded-full"
-              >
-                {isRecording
-                  ? <><MicOff size={13} strokeWidth={2} /> 停止</>
-                  : <><Mic size={13} strokeWidth={2} /> 音声入力</>
-                }
-              </Button>
-            ) : (
-              <span className="text-xs text-muted-foreground">このブラウザは音声入力非対応です</span>
-            )}
-            {freeText && (
-              <Button type="button" variant="ghost" size="sm" onClick={() => setFreeText('')}>
-                クリア
-              </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleSubmit}
+              disabled={!isValid || isSubmitting}
+              size="lg"
+              className="flex-1 text-base font-bold"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={16} strokeWidth={2} className="animate-spin" />
+                  {timing === 'checkout' ? 'AIがスコアを算出中…' : 'Careがコメントを生成中…'}
+                </>
+              ) : (
+                timing === 'morning' ? 'チェックインする →' : 'チェックアウトする →'
+              )}
+            </Button>
+
+            {!isValid && (
+              <p className="text-xs text-muted-foreground whitespace-nowrap">
+                あと {expectedPeriods.length - filledCount} 項目
+              </p>
             )}
           </div>
         </div>
-      </section>
-
-      {/* エラー */}
-      {error && (
-        <div className="rounded-md border px-4 py-3 text-sm"
-          style={{
-            color: 'var(--color-danger)',
-            background: 'var(--color-danger-subtle)',
-            borderColor: 'var(--color-danger)',
-          }}>
-          {error}
-        </div>
-      )}
-
-      {/* 送信ボタン */}
-      <Button
-        onClick={handleSubmit}
-        disabled={!isValid || isSubmitting}
-        size="lg"
-        className="w-full text-base font-bold"
-      >
-        {isSubmitting ? (
-          <>
-            <Loader2 size={16} strokeWidth={2} className="animate-spin" />
-            {timing === 'checkout' ? 'AIがスコアを算出中…' : 'Careがコメントを生成中…'}
-          </>
-        ) : (
-          timing === 'morning' ? 'チェックインする →' : 'チェックアウトする →'
-        )}
-      </Button>
-
-      {!isValid && (
-        <p className="text-center text-xs text-muted-foreground">すべての時間帯を選択してください</p>
-      )}
-    </Card>
+      </Card>
+    </div>
   );
 }
