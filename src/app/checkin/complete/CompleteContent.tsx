@@ -45,7 +45,6 @@ export default function CompleteContent({ meditationUrl }: CompleteContentProps)
 
   return (
     <div style={{
-      minHeight: '100vh', background: 'var(--background)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px',
     }}>
       <div style={{

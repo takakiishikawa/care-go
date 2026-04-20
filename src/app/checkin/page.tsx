@@ -26,8 +26,7 @@ export default async function CheckinPage() {
   const isMorning = timing === 'morning';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
-      <main className="checkin-main">
+    <div className="checkin-main">
         {alreadyDone ? (
           <div style={{
             background: 'var(--card)', border: '1px solid var(--border)',
@@ -58,7 +57,6 @@ export default async function CheckinPage() {
         ) : (
           <CheckinForm timing={timing} />
         )}
-      </main>
     </div>
   );
 }

@@ -145,8 +145,7 @@ export default async function ReportsPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
-      <main className="page-main" style={{ maxWidth: '760px' }}>
+    <div className="page-main" style={{ maxWidth: '760px' }}>
         {/* ページヘッダー */}
         <div style={{ marginBottom: '28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
@@ -205,7 +204,6 @@ export default async function ReportsPage() {
             </p>
           </div>
         )}
-      </main>
-    </div>
+      </div>
   );
 }

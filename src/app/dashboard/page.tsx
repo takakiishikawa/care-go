@@ -131,8 +131,8 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)' }}>
-      <main className="page-main">
+    <>
+      <div className="page-main">
 
         {showCTA && (
           <CheckinCTABanner
@@ -289,9 +289,9 @@ export default async function DashboardPage() {
             lastWeekAvg={lastWeekAvg}
           />
         </div>
-      </main>
+      </div>
 
       <InsightPopup weekStartStr={weekStartStr} hasEnoughData={hasEnoughData} />
-    </div>
+    </>
   );
 }
