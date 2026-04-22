@@ -15,6 +15,7 @@ export function createAdminClient() {
   }
 
   return createClient(url, key, {
+    db: { schema: 'carego' },
     auth: {
       autoRefreshToken: false,
       persistSession: false,
