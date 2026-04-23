@@ -363,7 +363,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
               onClick={handleSubmit}
               disabled={!isValid || isSubmitting}
               size="lg"
-              className="flex-1 text-base font-bold"
+              className="flex-1 text-base font-semibold"
             >
               {isSubmitting ? (
                 <>

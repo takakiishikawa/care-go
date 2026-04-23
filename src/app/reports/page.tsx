@@ -40,7 +40,7 @@ function InsightCard({ insight }: { insight: WeeklyInsight }) {
             />
           </div>
           <div>
-            <p className="text-sm font-bold text-foreground leading-tight">
+            <p className="text-sm font-semibold text-foreground leading-tight">
               週次レポート
             </p>
             <p className="text-xs text-muted-foreground">{weekRange}</p>
@@ -106,7 +106,7 @@ function InsightCard({ insight }: { insight: WeeklyInsight }) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "var(--shadow-sm)",
+                    boxShadow: "var(--border border-border)",
                     marginTop: "1px",
                   }}
                 >

@@ -71,7 +71,7 @@ export default function CompleteContent({
           <CheckCircle size={24} strokeWidth={2} color="var(--color-success)" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">
+          <h1 className="text-xl font-semibold text-foreground tracking-tight">
             記録しました
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -117,7 +117,7 @@ export default function CompleteContent({
               <div className="flex items-center justify-center gap-1 mb-1">
                 {Icon && <Icon size={11} strokeWidth={2} color={color} />}
                 <p
-                  className="text-[11px] font-bold uppercase tracking-wider"
+                  className="text-[11px] font-semibold uppercase tracking-wider"
                   style={{ color }}
                 >
                   {label}
@@ -159,7 +159,7 @@ export default function CompleteContent({
         <div className="flex items-center gap-2 mb-2">
           <div
             className="flex size-7 items-center justify-center rounded-md"
-            style={{ background: "var(--card)", boxShadow: "var(--shadow-sm)" }}
+            style={{ background: "var(--card)", boxShadow: "var(--border border-border)" }}
           >
             <Wind size={14} strokeWidth={2} color="var(--color-warning)" />
           </div>

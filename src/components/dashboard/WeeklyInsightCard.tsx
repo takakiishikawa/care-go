@@ -189,7 +189,7 @@ export default function WeeklyInsightCard({
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        boxShadow: "var(--shadow-sm)",
+                        boxShadow: "var(--border border-border)",
                         marginTop: "1px",
                       }}
                     >

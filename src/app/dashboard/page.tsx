@@ -195,7 +195,7 @@ export default async function DashboardPage() {
                     {scoreDiff !== null && (
                       <div className="flex flex-col gap-1 pb-1">
                         <span
-                          className="text-sm font-bold px-2 py-0.5 rounded-full border"
+                          className="text-sm font-semibold px-2 py-0.5 rounded-full border"
                           style={{
                             color: diffColor,
                             background:
@@ -277,7 +277,7 @@ export default async function DashboardPage() {
                           </span>
                         </div>
                         <span
-                          className="text-base font-bold tabular-nums"
+                          className="text-base font-semibold tabular-nums"
                           style={{
                             color:
                               score !== null
@@ -324,7 +324,7 @@ export default async function DashboardPage() {
                     <span className="text-sm text-muted-foreground">
                       今週平均{" "}
                       <span
-                        className="font-bold text-[15px]"
+                        className="font-semibold text-[15px]"
                         style={{ color: "var(--color-success)" }}
                       >
                         {thisWeekAvg}
@@ -332,7 +332,7 @@ export default async function DashboardPage() {
                     </span>
                     {weekDiff !== null && weekDiff !== 0 && (
                       <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-full border"
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full border"
                         style={{
                           color:
                             weekDiff > 0
@@ -395,7 +395,7 @@ export default async function DashboardPage() {
                     }
                   />
                   <span
-                    className="text-sm font-bold tabular-nums"
+                    className="text-sm font-semibold tabular-nums"
                     style={{
                       color:
                         totalMeditations > 0

@@ -107,7 +107,7 @@ function TagButton({
         transform: selected ? "scale(1.02)" : "scale(1)",
         transition: "all 0.15s ease",
         letterSpacing: "-0.01em",
-        boxShadow: selected ? "var(--shadow-sm)" : "none",
+        boxShadow: selected ? "var(--border border-border)" : "none",
       }}
     >
       {label}
