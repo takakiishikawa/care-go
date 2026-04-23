@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
     >
       <div
         style={{
-          fontSize: "11px",
+          fontSize: "var(--text-xs)",
           color: "var(--color-text-subtle)",
           marginBottom: "2px",
           letterSpacing: "0.02em",
@@ -48,7 +48,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
       </div>
       <div
         style={{
-          fontSize: "20px",
+          fontSize: "var(--text-xl)",
           fontWeight: 700,
           color: "var(--foreground)",
           letterSpacing: "-0.03em",

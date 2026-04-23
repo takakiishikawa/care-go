@@ -65,7 +65,7 @@ function InsightCard({ insight }: { insight: WeeklyInsight }) {
             </div>
             <div
               style={{
-                fontSize: "20px",
+                fontSize: "var(--text-xl)",
                 fontWeight: 800,
                 color: "var(--color-success)",
                 letterSpacing: "-0.04em",
@@ -115,7 +115,7 @@ function InsightCard({ insight }: { insight: WeeklyInsight }) {
                 <div>
                   <p
                     style={{
-                      fontSize: "11px",
+                      fontSize: "var(--text-xs)",
                       fontWeight: 700,
                       color,
                       letterSpacing: "0.05em",

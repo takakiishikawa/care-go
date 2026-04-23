@@ -134,7 +134,7 @@ export default function SplashScreen() {
 
         <div
           style={{
-            fontSize: "28px",
+            fontSize: "var(--text-2xl)",
             fontWeight: 700,
             color: "var(--color-primary)",
             fontFamily: '"DM Sans", system-ui, sans-serif',
@@ -148,7 +148,7 @@ export default function SplashScreen() {
 
         <div
           style={{
-            fontSize: "14px",
+            fontSize: "var(--text-sm)",
             color: "var(--color-text-subtle)",
             fontFamily: '"DM Sans", system-ui, sans-serif',
             fontWeight: 400,

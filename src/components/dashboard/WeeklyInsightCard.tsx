@@ -52,7 +52,7 @@ export default function WeeklyInsightCard({
           <div>
             <p
               style={{
-                fontSize: "14px",
+                fontSize: "var(--text-sm)",
                 fontWeight: 600,
                 color: "var(--foreground)",
                 letterSpacing: "-0.01em",
@@ -64,7 +64,7 @@ export default function WeeklyInsightCard({
             {weekDiff !== null && (
               <p
                 style={{
-                  fontSize: "12px",
+                  fontSize: "var(--text-xs)",
                   color:
                     weekDiff > 0
                       ? "var(--color-success)"
@@ -98,7 +98,7 @@ export default function WeeklyInsightCard({
             >
               <div
                 style={{
-                  fontSize: "10px",
+                  fontSize: "var(--text-xs)",
                   color: "var(--color-success)",
                   fontWeight: 600,
                   letterSpacing: "0.04em",
@@ -109,7 +109,7 @@ export default function WeeklyInsightCard({
               </div>
               <div
                 style={{
-                  fontSize: "20px",
+                  fontSize: "var(--text-xl)",
                   fontWeight: 800,
                   color: "var(--color-success)",
                   letterSpacing: "-0.04em",
@@ -131,7 +131,7 @@ export default function WeeklyInsightCard({
               >
                 <div
                   style={{
-                    fontSize: "10px",
+                    fontSize: "var(--text-xs)",
                     color: "var(--color-text-subtle)",
                     fontWeight: 600,
                     letterSpacing: "0.04em",
@@ -142,7 +142,7 @@ export default function WeeklyInsightCard({
                 </div>
                 <div
                   style={{
-                    fontSize: "20px",
+                    fontSize: "var(--text-xl)",
                     fontWeight: 700,
                     color: "var(--color-text-secondary)",
                     letterSpacing: "-0.04em",
@@ -198,7 +198,7 @@ export default function WeeklyInsightCard({
                     <div>
                       <p
                         style={{
-                          fontSize: "11px",
+                          fontSize: "var(--text-xs)",
                           fontWeight: 700,
                           color,
                           letterSpacing: "0.05em",
@@ -210,7 +210,7 @@ export default function WeeklyInsightCard({
                       </p>
                       <p
                         style={{
-                          fontSize: "14px",
+                          fontSize: "var(--text-sm)",
                           color: "var(--foreground)",
                           lineHeight: 1.75,
                           margin: 0,
@@ -226,7 +226,7 @@ export default function WeeklyInsightCard({
           ) : (
             <p
               style={{
-                fontSize: "15px",
+                fontSize: "var(--text-base)",
                 color: "var(--foreground)",
                 lineHeight: 1.8,
                 margin: 0,
@@ -255,7 +255,7 @@ export default function WeeklyInsightCard({
           />
           <p
             style={{
-              fontSize: "14px",
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-subtle)",
               margin: 0,
               lineHeight: 1.6,
