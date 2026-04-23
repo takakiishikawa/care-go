@@ -32,7 +32,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
         border: "1px solid var(--border)",
         borderRadius: "var(--radius-md)",
         padding: "8px 14px",
-        boxShadow: "var(--shadow-lg)",
+        boxShadow: "var(--border border-border)",
         textAlign: "center",
       }}
     >

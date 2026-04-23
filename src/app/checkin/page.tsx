@@ -64,7 +64,7 @@ export default async function CheckinPage() {
                 color="var(--color-success)"
               />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-2">
+            <h2 className="text-lg font-semibold text-foreground mb-2">
               {title}は完了済みです
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed mb-7">

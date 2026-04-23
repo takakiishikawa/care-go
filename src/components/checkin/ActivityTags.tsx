@@ -63,7 +63,7 @@ function TagButton({
         fontWeight: selected ? 600 : 400,
         cursor: "pointer",
         transform: selected ? "scale(1.02)" : "scale(1)",
-        boxShadow: selected ? "var(--shadow-sm)" : "none",
+        boxShadow: selected ? "var(--border border-border)" : "none",
       }}
     >
       {label}
