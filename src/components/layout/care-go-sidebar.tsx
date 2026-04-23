@@ -60,7 +60,11 @@ const GO_APPS = [
     url: "https://kenyaku-go.vercel.app/",
     color: "var(--color-warning)",
   },
-  { name: "TaskGo", url: "https://taskgo-dun.vercel.app/", color: "var(--color-accent)" },
+  {
+    name: "TaskGo",
+    url: "https://taskgo-dun.vercel.app/",
+    color: "var(--color-accent)",
+  },
   {
     name: "CookGo",
     url: "https://cook-go-lovat.vercel.app/dashboard",
