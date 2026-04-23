@@ -93,7 +93,7 @@ export default function InsightPopup({
           </div>
           <h2
             style={{
-              fontSize: "20px",
+              fontSize: "var(--text-xl)",
               fontWeight: 600,
               color: "var(--foreground)",
               marginBottom: "10px",
@@ -103,7 +103,7 @@ export default function InsightPopup({
           </h2>
           <p
             style={{
-              fontSize: "14px",
+              fontSize: "var(--text-sm)",
               color: "var(--color-text-secondary)",
               lineHeight: 1.75,
             }}
@@ -116,7 +116,7 @@ export default function InsightPopup({
           <div
             style={{
               color: "var(--color-danger)",
-              fontSize: "14px",
+              fontSize: "var(--text-sm)",
               marginBottom: "16px",
               background: "var(--color-danger-subtle)",
               padding: "10px 14px",

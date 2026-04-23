@@ -71,8 +71,8 @@ export default function CheckinCTABanner({
           {greeting && (
             <div
               style={{
-                color: "rgba(255,255,255,0.65)",
-                fontSize: "12px",
+                color: "var(--color-text-tertiary)",
+                fontSize: "var(--text-xs)",
                 marginBottom: "2px",
               }}
             >
@@ -81,8 +81,8 @@ export default function CheckinCTABanner({
           )}
           <div
             style={{
-              color: "white",
-              fontSize: "16px",
+              color: "var(--color-text-primary)",
+              fontSize: "var(--text-base)",
               fontWeight: 700,
               letterSpacing: "-0.02em",
             }}

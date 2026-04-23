@@ -141,7 +141,7 @@ export default function CareComment({
         <CareIcon size={32} />
         <p
           style={{
-            fontSize: "14px",
+            fontSize: "var(--text-sm)",
             color: "var(--foreground)",
             lineHeight: 1.75,
             margin: 0,
@@ -231,7 +231,7 @@ export default function CareComment({
                 <div>
                   <p
                     style={{
-                      fontSize: "11px",
+                      fontSize: "var(--text-xs)",
                       fontWeight: 700,
                       color: meta?.color ?? "var(--color-text-secondary)",
                       letterSpacing: "0.05em",

@@ -68,7 +68,7 @@ function MoodButton({
       />
       <div
         style={{
-          fontSize: "12px",
+          fontSize: "var(--text-xs)",
           fontWeight: 500,
           color: selected ? "var(--color-primary)" : "var(--color-text-subtle)",
         }}

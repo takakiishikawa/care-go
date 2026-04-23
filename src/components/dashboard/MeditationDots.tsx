@@ -41,7 +41,7 @@ export default function MeditationDots({ data }: MeditationDotsProps) {
             {/* 回数 */}
             <div
               style={{
-                fontSize: "13px",
+                fontSize: "var(--text-xs)",
                 fontWeight: d.count > 0 ? 700 : 400,
                 color:
                   d.count > 0
@@ -72,7 +72,7 @@ export default function MeditationDots({ data }: MeditationDotsProps) {
             {/* 日付 */}
             <div
               style={{
-                fontSize: "12px",
+                fontSize: "var(--text-xs)",
                 color: isToday
                   ? "var(--color-warning)"
                   : "var(--color-text-subtle)",
