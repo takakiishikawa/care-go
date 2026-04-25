@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { DesignTokens, AppLayout, Toaster } from "@takaki/go-design-system";
+import { Analytics } from "@vercel/analytics/react";
 import { CareGoSidebar } from "@/components/layout/care-go-sidebar";
 import { createClient } from "@/lib/supabase/server";
 import ServiceWorkerRegistrar from "@/components/ui/ServiceWorkerRegistrar";
@@ -70,6 +71,7 @@ export default async function RootLayout({
           <main>{children}</main>
         )}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
