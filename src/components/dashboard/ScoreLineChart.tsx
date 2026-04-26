@@ -53,7 +53,12 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
 }
 
 interface ChartInnerProps {
-  chartData: Array<{ label: string; score: number | null; date: string; isToday: boolean }>;
+  chartData: Array<{
+    label: string;
+    score: number | null;
+    date: string;
+    isToday: boolean;
+  }>;
   minScore: number;
   maxScore: number;
   todayDot: { label: string; score: number | null } | undefined;
@@ -63,8 +68,23 @@ interface ChartInnerProps {
 const ChartInner = dynamic<ChartInnerProps>(
   () =>
     import("recharts").then(
-      ({ AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot }) => {
-        function RechartsChart({ chartData, minScore, maxScore, todayDot, fillHeight }: ChartInnerProps) {
+      ({
+        AreaChart,
+        Area,
+        XAxis,
+        YAxis,
+        CartesianGrid,
+        Tooltip,
+        ResponsiveContainer,
+        ReferenceDot,
+      }) => {
+        function RechartsChart({
+          chartData,
+          minScore,
+          maxScore,
+          todayDot,
+          fillHeight,
+        }: ChartInnerProps) {
           return (
             <div
               style={{
@@ -79,7 +99,13 @@ const ChartInner = dynamic<ChartInnerProps>(
                   margin={{ top: 12, right: 8, bottom: 4, left: 0 }}
                 >
                   <defs>
-                    <linearGradient id="scoreGradFill" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                      id="scoreGradFill"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
                       <stop
                         offset="0%"
                         stopColor="var(--color-primary)"
@@ -171,9 +197,12 @@ const ChartInner = dynamic<ChartInnerProps>(
           );
         }
         return RechartsChart;
-      }
+      },
     ),
-  { ssr: false, loading: () => <div style={{ height: 240, minHeight: 180 }} /> }
+  {
+    ssr: false,
+    loading: () => <div style={{ height: 240, minHeight: 180 }} />,
+  },
 );
 
 export default function ScoreLineChart({
