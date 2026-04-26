@@ -140,7 +140,9 @@ export default function CompleteContent({
             <CardDescription>Care からのコメント</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{comment}</p>
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+              {comment}
+            </p>
           </CardContent>
         </Card>
       )}
