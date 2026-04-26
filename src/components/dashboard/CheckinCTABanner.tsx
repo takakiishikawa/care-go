@@ -93,10 +93,12 @@ export default function CheckinCTABanner({
       <Button
         asChild
         className="text-white shrink-0"
-        style={{
-          background: "var(--color-overlay-light)",
-          border: "1px solid var(--color-overlay-medium)",
-        } as React.CSSProperties}
+        style={
+          {
+            background: "var(--color-overlay-light)",
+            border: "1px solid var(--color-overlay-medium)",
+          } as React.CSSProperties
+        }
       >
         <Link href="/checkin">
           <PenLine size={14} strokeWidth={2.2} />
