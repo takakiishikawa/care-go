@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { createClient } from "@/lib/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -90,7 +89,6 @@ function isActive(href: string, pathname: string) {
 export function CareGoSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
 
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
@@ -100,13 +98,19 @@ export function CareGoSidebar() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      setDisplayName(
-        user.user_metadata?.display_name || user.email?.split("@")[0] || "User",
-      );
-      setEmail(user.email || "");
-      setAvatarUrl(user.user_metadata?.avatar_url || "");
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient()
+        .auth.getUser()
+        .then(({ data: { user } }) => {
+          if (!user) return;
+          setDisplayName(
+            user.user_metadata?.display_name ||
+              user.email?.split("@")[0] ||
+              "User",
+          );
+          setEmail(user.email || "");
+          setAvatarUrl(user.user_metadata?.avatar_url || "");
+        });
     });
     const update = () =>
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -131,7 +135,8 @@ export function CareGoSidebar() {
   }
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
+    const { createClient } = await import("@/lib/supabase/client");
+    await createClient().auth.signOut();
     window.location.href = "/login";
   }
 
@@ -225,7 +230,7 @@ export function CareGoSidebar() {
         {/* フッター */}
         <SidebarFooter>
           <UserMenu
-            displayName={displayName || "—"}
+            displayName={displayName || "\u2014"}
             email={email}
             avatarUrl={avatarUrl}
             items={[
