@@ -11,7 +11,6 @@ import {
   BarChart2,
   FileText,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { TimePeriodRatings } from "@/lib/types";
 import { Button, Card, Separator } from "@takaki/go-design-system";
 
@@ -149,23 +148,26 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
   ).length;
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from("user_tags")
-      .select("tag_name")
-      .eq("tag_type", isMorning ? "morning_activity" : "evening_activity")
-      .then(({ data }) => {
-        if (data) setUserActivityTags(data.map((r) => r.tag_name));
-      });
+    import("@/lib/supabase/client").then(({ createClient }) => {
+      createClient()
+        .from("user_tags")
+        .select("tag_name")
+        .eq("tag_type", isMorning ? "morning_activity" : "evening_activity")
+        .then(({ data }) => {
+          if (data) setUserActivityTags(data.map((r) => r.tag_name));
+        });
+    });
   }, [isMorning]);
 
   const handleAddUserTag = async (tag: string) => {
     setUserActivityTags((prev) => [...prev, tag]);
-    const supabase = createClient();
-    await supabase.from("user_tags").insert({
-      tag_name: tag,
-      tag_type: isMorning ? "morning_activity" : "evening_activity",
-    });
+    const { createClient } = await import("@/lib/supabase/client");
+    await createClient()
+      .from("user_tags")
+      .insert({
+        tag_name: tag,
+        tag_type: isMorning ? "morning_activity" : "evening_activity",
+      });
   };
 
   const handleSubmit = async () => {
@@ -288,7 +290,9 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
               <div
                 className="rounded-lg p-3.5 transition-all min-h-[72px] flex flex-col gap-3"
                 style={{
-                  border: `1px solid ${isRecording ? "var(--color-danger)" : "var(--border)"}`,
+                  border: `1px solid ${
+                    isRecording ? "var(--color-danger)" : "var(--border)"
+                  }`,
                   background: isRecording
                     ? "var(--color-danger-subtle)"
                     : "var(--color-surface-subtle)",
@@ -305,7 +309,7 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
                 >
                   {freeText ||
                     (isRecording
-                      ? "話してください…"
+                      ? "話してください\u2026"
                       : "音声入力ボタンを押して話してください")}
                 </p>
 
@@ -375,13 +379,13 @@ export default function CheckinForm({ timing }: CheckinFormProps) {
                 <>
                   <Loader2 size={16} strokeWidth={2} className="animate-spin" />
                   {timing === "checkout"
-                    ? "AIがスコアを算出中…"
-                    : "Careがコメントを生成中…"}
+                    ? "AIがスコアを算出中\u2026"
+                    : "Careがコメントを生成中\u2026"}
                 </>
               ) : timing === "morning" ? (
-                "チェックインする →"
+                "チェックインする \u2192"
               ) : (
-                "チェックアウトする →"
+                "チェックアウトする \u2192"
               )}
             </Button>
 
